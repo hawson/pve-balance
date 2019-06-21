@@ -32,10 +32,24 @@ def get_stats_node(proxmox, exclude=[]):
         else:
             print("excluding {}".format(node['node']))
         
-    for node in nodes:
-        print("{0} {1} => {2}".format(node, nodes[node]['uptime'], nodes[node]['disk']))
 
     return nodes
+
+def show_nodes(nodes, mode='std'):
+    # 'pve1': {'ssl_fingerprint': 'C5:48:BB:72:74:20:3A:C5:11:54:5A:D2:99:88:E5:C6:68:50:28:43:A6:E5:B7:C4:E7:26:BC:F3:A5:72:38:EF', 'disk': 5917954048, 'id': 'node/pve1', 'node': 'pve1', 'type': 'node', 'mem': 46294081536, 'maxcpu': 40, 'uptime': 1953914, 'maxmem': 134842212352, 'status': 'online', 'cpu': 0.00900691538434386, 'level': '', 'maxdisk': 16578916352}
+    #print(nodes)
+
+    fmt='{name:5>} {maxcpu:>3}(%{cpu_perc:>2.0f}) {maxmem:>3}(%{mem_perc:>2.0f})'
+
+    for name,node in nodes.items():
+        #print("{0} {1} => {2}".format(node, nodes[node]['uptime'], nodes[node]['disk']))
+        print(fmt.format(
+            name = name,
+            maxcpu = human_format(node['maxcpu'],precision=0),
+            maxmem = human_format(node['maxmem']),
+            cpu_perc = float( human_format( float(node['cpu'])/float(node['maxcpu'] )*100) ),
+            mem_perc = float( human_format( float(node['mem'])/float(node['maxmem'] )*100) ),
+        ))
 
 
 
@@ -49,10 +63,26 @@ def get_stats_vm(proxmox, exclude=[]):
         else:
             print("excluding {}/{}".format(vm['vmid'],vm['name']))
         
-    for vm in vms:
-        print("{0} {1} => {2}".format(vm, vms[vm]['name'], human_format(vms[vm]['maxmem'])))
+    #for vm in vms:
+    #    print("{0} {1} => {2}".format(vm, vms[vm]['name'], human_format(vms[vm]['maxmem'])))
 
     return vms
+
+
+def show_vms(vms, mode='std'):
+    # 13: {'maxdisk': 34359738368, 'cpu': 0.00789133085414431, 'template': 0, 'netout': 11398084099, 'node': 'pve1', 'id': 'qemu/113', 'pool': 'ibbr', 'netin': 6947826280, 'diskwrite': 65830185472, 'maxmem': 2097152000, 'status': 'running', 'diskread': 64368749240, 'name': 'cephtest3', 'uptime': 918537, 'maxcpu': 2, 'mem': 733351936, 'type': 'qemu', 'disk': 0, 'vmid': 113}
+    #print(vms)
+    fmt='{vmid:5>} {name:>20} {maxcpu:>3}(%{cpu_perc:>2.0f}) {maxmem:>3} {node}'
+    for vmid,vm in vms.items():
+        #print("{0} {1} => {2}".format(node, nodes[node]['uptime'], nodes[node]['disk']))
+        print(fmt.format(
+            name = vm['name'],
+            vmid=vmid,
+            maxcpu = human_format(vm['maxcpu'],precision=0),
+            maxmem = human_format(vm['maxmem']),
+            node = vm['node'],
+            cpu_perc = float( human_format( float(vm['cpu'])/float(vm['maxcpu'] )*100) )
+        ))
 
 
 def human_format(num,precision=1):
@@ -65,8 +95,14 @@ def human_format(num,precision=1):
     #return '%.2f%s' % (num, ['', 'K', 'M', 'G', 'T', 'P'][magnitude])
     return format_str % (num, ['', 'K', 'M', 'G', 'T', 'P'][magnitude])
 
-nodes = get_stats_node(proxmox, exclude='pve3')
-vms   = get_stats_vm(proxmox, exclude=['cephtest2'])
 
+
+
+
+
+nodes = get_stats_node(proxmox, exclude='pve3')
+show_nodes(nodes)
+vms   = get_stats_vm(proxmox, exclude=['cephtest2'])
+show_vms(vms)
 
 
