@@ -5,13 +5,26 @@ import re
 import sys
 import json
 
-from score import *
-from balance_math import *
+import logging
 
 from proxmoxer import ProxmoxAPI
 
+from score import *
+from balance_math import *
 
-proxmox = ProxmoxAPI('pve3.ad.ibbr.umd.edu', user='monitoring@pve', password='monitoring',)
+from PVE import PVE
+
+
+LOG_LEVEL=10
+
+log = logging.basicConfig(format='%(asctime)-15s [%(levelname)s] %(message)s', level=LOG_LEVEL)
+
+
+
+H='pve3.ad.ibbr.umd.edu'
+U='monitoring@pve'
+P='monitoring'
+proxmox = ProxmoxAPI(H, password=P, user=U)
 
 
 
@@ -105,6 +118,9 @@ vms   = get_stats_vm(proxmox, exclude=['cephtest2'])
 show_nodes(nodes, vms)
 show_vms(vms)
 
+P = PVE(host=H, u=U, pw=P, excludes=['pve3'])
+
+print(P.get_nodes())
 
 # 'pve1': {
 #    'cpu': 0.00900691538434386,
