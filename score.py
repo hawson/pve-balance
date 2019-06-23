@@ -11,19 +11,21 @@ weight = {
 
 # these values are added directly to the compute score of each VM/Node
 global_bias = {
-    'pve1': 10,
+    'pve1':  -10,
     'bcmd7': -10,
 }
 
 
 
+def score_vm(vm, biased=True):
 
-def score_vm(vm, biased):
-    bias_score = 0.0
     name = vm['name']
-    if biased:
-        if name in global_bias:
-            bias_score = global_bias[vm['name']]
+    bias_score = 0.0
+
+    # Compute biases for the VM, if accounting for them,
+    # and one is defined
+    if biased and name in global_bias:
+        bias_score = global_bias[vm['name']]
 
     return (vm['cpu']                  * weight['cpu']   # percentage of allocated CPU used
             +vm['maxcpu']              * weight['ncpu']  # number of CPUs
@@ -65,14 +67,19 @@ def score_node(node, loadout, mode='total', biased=True, output='short'):
             vm_score += score_vm(vm, biased)
 
 
-    # calculate bias
-    if biased:
-        if node_name in global_bias:
-            node_bias = global_bias[node_name]
+    # calculate node bias, if any
+    if biased and node_name in global_bias:
+        node_bias = global_bias[node_name]
 
-    score = node_score + vm_score + node_bias + vm_bias
+    score = node_score + vm_score + node_bias
     if output=='full':
-        return '{:6.3f} = {:5.3f} + {:5.3f} + {:4.1f} + {:4.1f}'.format(score, node_score, vm_score, node_bias, vm_bias)
+        return '{:6.3f} = {:5.3f} + {:5.3f} + {:4.1f} + {:4.1f}'.format(
+                score,
+                node_score,
+                vm_score,
+                node_bias,
+                vm_bias)
+
     return human_format(score,precision=3)
 
 

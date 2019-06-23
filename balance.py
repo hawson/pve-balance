@@ -69,19 +69,20 @@ def get_stats_vm(proxmox, exclude=[]):
     return vms
 
 
-def show_vms(vms, mode='std'):
+def show_vms(vms, mode='std', biased=True):
     # 13: {'maxdisk': 34359738368, 'cpu': 0.00789133085414431, 'template': 0, 'netout': 11398084099, 'node': 'pve1', 'id': 'qemu/113', 'pool': 'ibbr', 'netin': 6947826280, 'diskwrite': 65830185472, 'maxmem': 2097152000, 'status': 'running', 'diskread': 64368749240, 'name': 'cephtest3', 'uptime': 918537, 'maxcpu': 2, 'mem': 733351936, 'type': 'qemu', 'disk': 0, 'vmid': 113}
     #print(vms)
-    fmt='{vmid:5>} {name:>20} {cpu:>2}/{maxcpu:>2}(%{cpu_perc:>2.0f}) {maxmem:>3} {node}'
+    fmt='{vmid:5>} {name:>20} {cpu:>2}/{maxcpu:>2}(%{cpu_perc:>2.0f}) {maxmem:>3} {node:>5} {score:< 06.3}'
+    fmt_full =fmt + '= {cpu_score} + {mem_score}'
     for vmid,vm in sorted(vms.items()):
-        #print("{0} {1} => {2}".format(node, nodes[node]['uptime'], nodes[node]['disk']))
         print(fmt.format(
             name = vm['name'],
             vmid=vmid,
             cpu    = human_format(vm['cpu'],precision=0),
             maxcpu = human_format(vm['maxcpu'],precision=0),
             maxmem = human_format(vm['maxmem']),
-            node = vm['node'],
+            node   = vm['node'],
+            score  = score_vm(vm),
             cpu_perc = float( human_format( float(vm['cpu'])/float(vm['maxcpu'] )*100) )
         ))
 
