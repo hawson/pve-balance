@@ -6,7 +6,7 @@ import logging
 class Node:
 
     #fmt='{name:5>} {cpu:>02.1f}/{maxcpu:>2}(%{cpu_perc:>2.0f}) {maxmem:>3.0f}G(%{mem_perc:>2.0f}) score: {score:>.3f}'
-    fmt='{name:5>} {cpu:>02.1f}/{maxcpu:>2}(%{cpu_perc:>2.0f}) {maxmem:>3.0f}G(%{mem_perc:>2.0f}) score: {score}'
+    fmt='{name:5>} {cpu:>02.1f}/{maxcpu:>2}(%{cpu_perc:>2.0f}) {maxmem:>4.0f}G(%{mem_perc:>2.0f}) score: {score}'
 
     weight = {
         'mem':  1.0,
@@ -93,6 +93,6 @@ class Node:
                     scores['mem'],
                     scores['bias'],
                     )
-
-        return '{:>.3f}'.format(score)
+        else:
+            return '{:>.3f}'.format(score)
 
