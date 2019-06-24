@@ -8,6 +8,8 @@ class Node:
     # Formatting string fro score output
     fmt='{name:25} {cpu}/{maxcpu}(%{cpu_perc}) {maxmem}G(%{mem_perc}) score: {score}'
 
+    shown = False
+
     weight = {
         'mem':  1.0,
         'disk': 0.0,   # This will be normalized to GB (not bytes
@@ -26,9 +28,24 @@ class Node:
         self.log = logging.getLogger(__name__)
         self.bias=bias
 
+    def dash(self,n, dash='-'):
+        return dash*n
+
 
     def show(self, format=None):
 
+        if not Node.shown:
+            Node.shown=True
+            print(Node.fmt.format(
+                name=self.dash(25),
+                cpu=self.dash(3),
+                maxcpu=self.dash(2),
+                cpu_perc=self.dash(2),
+                maxmem=self.dash(3),
+                mem_perc=self.dash(3),
+                score=self.dash(15),
+            ))
+            
         print(Node.fmt.format(
             name     = self.id,
             cpu      = '{:>02.1f}'.format(self.cpu),

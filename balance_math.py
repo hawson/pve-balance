@@ -12,9 +12,11 @@ def dot(a,b):
 def length(a):
     return  sqrt(sum(map(lambda x: x**2, a)))
 
+
 def norm(a):
     l = length(a)
     return list(map(lambda x: x/l, a))
+
 
 def area(a):
     return reduce(lambda acc, x: acc*x, a)
