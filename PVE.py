@@ -55,11 +55,7 @@ class PVE():
                 if node['node'] in self.excludes:
                     self.log.info("Excluding node {} on request.".format(node['node']))
                 else:
-                    self.nodes.append(node)
-                    N = Node(data=node)
-                    N.show()
-                    self.nodeobj.append( Node(data=node))
-
+                    self.nodes.append(Node(data=node))
 
         if full:
             return self.nodes

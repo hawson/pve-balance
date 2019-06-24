@@ -112,15 +112,34 @@ def human_format(num,precision=1):
 
 
 
-nodes = get_stats_node(proxmox, exclude='badnode')
-vms   = get_stats_vm(proxmox, exclude=['cephtest2'])
+#nodes = get_stats_node(proxmox, exclude='badnode')
+#vms   = get_stats_vm(proxmox, exclude=['cephtest2'])
 
-show_nodes(nodes, vms)
-show_vms(vms)
+#show_nodes(nodes, vms)
+#show_vms(vms)
 
 P = PVE(host=H, u=U, pw=P, excludes=['pve3'])
 
-print(P.get_nodes())
+print("Dumping Nodes")
+nodes = P.get_nodes(full=True)
+print("Dumping VMs")
+vms = P.get_vms(full=True)
+
+
+
+def foo(thing):
+    print(type(thing))
+    print(thing)
+    thing.show()
+
+#print(nodes)
+[ x.show() for x in nodes ]
+[ x.show() for x in vms   ]
+
+
+#print(P.get_nodes())
+#print(P.get_vms())
+
 
 # 'pve1': {
 #    'cpu': 0.00900691538434386,
