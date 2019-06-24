@@ -4,7 +4,7 @@ import logging
 
 class VM:
 
-    fmt='{vmid:5>} {name:>20}{state} {cpu}/{maxcpu}(%{cpu_perc}) {maxmem}G {node} {score}'
+    fmt='{vmid:5>} {name:>20}{state} {cpu}/{maxcpu}(%{cpu_perc}) {maxmem}G {node} score: {score}'
 
 
     weight = {
@@ -27,16 +27,15 @@ class VM:
 
 
     def show(self, format=None):
-        self.log.debug("Showing {}".format(self.name))
         print(VM.fmt.format(
             vmid     = self.vmid,
             name     = self.name,
             state    = ' ' if self.status == 'running' else '*',
             cpu      = '{:>03.1f}'.format(self.cpu),
             maxcpu   = '{:>2}'.format(self.maxcpu),
+            node     = '{:>4}'.format(self.node),
             cpu_perc = '{:>2.0f}'.format(float( float(self.cpu)/float(self.maxcpu )*100)),
-            maxmem   = '{:>03.1f}'.format(float(self.maxmem / 2**30)),
-            node     = '{:>6}'.format(self.node),
+            maxmem   = '{:>3.0f}'.format(float(self.maxmem / 2**30)),
             score    = self.score(full=True),
         ))
 
@@ -44,8 +43,6 @@ class VM:
     def score(self, biased=True, full=False):
 
         vm_name = self.name
-
-        self.log.debug("Scoring VM {}".format(vm_name))
 
         score = 0.0
 
