@@ -5,8 +5,8 @@ import logging
 
 class Node:
 
-    #fmt='{name:5>} {cpu:>02.1f}/{maxcpu:>2}(%{cpu_perc:>2.0f}) {maxmem:>3.0f}G(%{mem_perc:>2.0f}) score: {score:>.3f}'
-    fmt='{name:5>} {cpu:>02.1f}/{maxcpu:>2}(%{cpu_perc:>2.0f}) {maxmem:>4.0f}G(%{mem_perc:>2.0f}) score: {score}'
+    # Formatting string fro score output
+    fmt='{name:25} {cpu}/{maxcpu}(%{cpu_perc}) {maxmem}G(%{mem_perc}) score: {score}'
 
     weight = {
         'mem':  1.0,
@@ -28,14 +28,14 @@ class Node:
 
 
     def show(self, format=None):
-        self.log.debug("Showing {}".format(self.name))
+
         print(Node.fmt.format(
-            name     = self.name,
-            cpu      = self.cpu,
-            maxcpu   = self.maxcpu,
-            cpu_perc = float( float(self.cpu)/float(self.maxcpu )*100),
-            maxmem   = int(self.maxmem / 2**30),
-            mem_perc = float( float(self.mem)/float(self.maxmem )*100),
+            name     = self.id,
+            cpu      = '{:>02.1f}'.format(self.cpu),
+            maxcpu   = '{:>2}'.format(self.maxcpu),
+            cpu_perc = '{:>2.0f}'.format(float( float(self.cpu)/float(self.maxcpu )*100)),
+            maxmem   = '{:>3.0f}'.format(int(self.maxmem / 2**30)),
+            mem_perc = '{:>2.0f}'.format(float( float(self.mem)/float(self.maxmem )*100)),
             score    = self.score(full=True)
 
             #cpu      = '{d}'.format(self.cpu),
