@@ -67,6 +67,26 @@ class PVE():
             return list(map(lambda n: n['node'], self.nodes))
 
 
+    def get_vms(self, full=False):
+
+        self.log.debug("Getting VMs.")
+        i=0
+        if self.vms is None:
+            self.vms = []
+
+            for vm in self.proxmox.cluster.resources.get(type='vm'):
+                if vm['name'] in self.excludes:
+                    self.log.info('Excluding vm {} by request.'.format(vm['name']))
+                else:
+                    V = VM(data=vm)
+                    self.vms.append(V)
+
+        if full:
+            return self.vms
+        else:
+            return list(map(lambda v: v.name, self.vms))
+
+
 
 
 
