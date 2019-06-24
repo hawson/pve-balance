@@ -1,5 +1,6 @@
 # class for VMs
 
+import logging
 
 class VM:
 

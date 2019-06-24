@@ -15,7 +15,7 @@ from balance_math import *
 from PVE import PVE
 
 
-LOG_LEVEL=10
+LOG_LEVEL=1
 
 log = logging.basicConfig(format='%(asctime)-15s [%(levelname)s] %(message)s', level=LOG_LEVEL)
 

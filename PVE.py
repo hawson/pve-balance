@@ -42,6 +42,8 @@ class PVE():
 
     def get_nodes(self, full=False):
 
+        self.log.debug("Getting nodes.")
+
         i=0
 
         if self.nodes is None:

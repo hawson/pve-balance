@@ -1,6 +1,8 @@
 # simple class for nodes.  Mostly a wrapper around
 # data from proxmoxer
 
+import logging
+
 class Node:
 
     #fmt='{name:5>} {cpu:>02.1f}/{maxcpu:>2}(%{cpu_perc:>2.0f}) {maxmem:>3.0f}G(%{mem_perc:>2.0f}) score: {score:>.3f}'
@@ -21,11 +23,12 @@ class Node:
             for k,v in data.items():
                 setattr(self, k, v)
             self.name=data['node']
-
+        self.log = logging.getLogger(__name__)
         self.bias=bias
 
 
     def show(self, format=None):
+        self.log.debug("Showing {}".format(self.name))
         print(Node.fmt.format(
             name     = self.name,
             cpu      = self.cpu,
