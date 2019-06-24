@@ -9,7 +9,6 @@ import logging
 
 from proxmoxer import ProxmoxAPI
 
-from score import *
 from balance_math import *
 
 from PVE import PVE
