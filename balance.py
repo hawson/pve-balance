@@ -13,11 +13,13 @@ from balance_math import *
 
 from PVE import PVE
 
+from packing import *
+
+
 
 LOG_LEVEL=1
 
 log = logging.basicConfig(format='%(asctime)-15s [%(levelname)s] %(message)s', level=LOG_LEVEL)
-
 
 
 H='pve3.ad.ibbr.umd.edu'
@@ -34,70 +36,6 @@ vms = {}
 #
 # https://pve.proxmox.com/pve-docs/api-viewer/index.html
 #
-
-def get_stats_node(proxmox, exclude=[]):
-    nodes = {}
-    for node in proxmox.nodes.get():
-        if node['node'] not in exclude:
-            nodes[node['node']] = node
-        else:
-            print("excluding {}".format(node['node']))
-
-
-    return nodes
-
-def show_nodes(nodes, loadout, format='std'):
-    # 'pve1': {'ssl_fingerprint': 'C5:48:BB:72:74:20:3A:C5:11:54:5A:D2:99:88:E5:C6:68:50:28:43:A6:E5:B7:C4:E7:26:BC:F3:A5:72:38:EF', 'disk': 5917954048, 'id': 'node/pve1', 'node': 'pve1', 'type': 'node', 'mem': 46294081536, 'maxcpu': 40, 'uptime': 1953914, 'maxmem': 134842212352, 'status': 'online', 'cpu': 0.00900691538434386, 'level': '', 'maxdisk': 16578916352}
-    #print(nodes)
-
-    fmt='{name:5>} {cpu:>2}/{maxcpu:>2}(%{cpu_perc:>2.0f}) {maxmem:>5s}(%{mem_perc:>2.0f}) score: {score:>8}'
-
-    for name,node in sorted(nodes.items()):
-        print(fmt.format(
-            name     = name,
-            cpu      = human_format(node['cpu'], precision=0),
-            maxcpu   = human_format(node['maxcpu'], precision=0),
-            maxmem   = human_format(node['maxmem'], precision=0),
-            cpu_perc = float( human_format( float(node['cpu'])/float(node['maxcpu'] )*100) ),
-            mem_perc = float( human_format( float(node['mem'])/float(node['maxmem'] )*100) ),
-            score    = score_node(node,loadout, mode='total', output='full'),
-        ))
-
-
-
-def get_stats_vm(proxmox, exclude=[]):
-
-    vms = {}
-    for vm in proxmox.cluster.resources.get(type='vm'):
-        #print(vm)
-        if vm['name'] not in exclude and vm['vmid'] not in exclude:
-            vms[vm['vmid']] = vm
-        else:
-            print("excluding {}/{}".format(vm['vmid'],vm['name']))
-
-    #for vm in vms:
-    #    print("{0} {1} => {2}".format(vm, vms[vm]['name'], human_format(vms[vm]['maxmem'])))
-
-    return vms
-
-
-def show_vms(vms, mode='std', biased=True):
-    # 13: {'maxdisk': 34359738368, 'cpu': 0.00789133085414431, 'template': 0, 'netout': 11398084099, 'node': 'pve1', 'id': 'qemu/113', 'pool': 'ibbr', 'netin': 6947826280, 'diskwrite': 65830185472, 'maxmem': 2097152000, 'status': 'running', 'diskread': 64368749240, 'name': 'cephtest3', 'uptime': 918537, 'maxcpu': 2, 'mem': 733351936, 'type': 'qemu', 'disk': 0, 'vmid': 113}
-    #print(vms)
-    fmt='{vmid:5>} {name:>20} {cpu:>2}/{maxcpu:>2}(%{cpu_perc:>2.0f}) {maxmem:>3} {node:>5} {score:< 06.3}'
-    fmt_full =fmt + '= {cpu_score} + {mem_score}'
-    for vmid,vm in sorted(vms.items()):
-        print(fmt.format(
-            name = vm['name'],
-            vmid=vmid,
-            cpu    = human_format(vm['cpu'],precision=0),
-            maxcpu = human_format(vm['maxcpu'],precision=0),
-            maxmem = human_format(vm['maxmem']),
-            node   = vm['node'],
-            score  = score_vm(vm),
-            cpu_perc = float( human_format( float(vm['cpu'])/float(vm['maxcpu'] )*100) )
-        ))
-
 
 def human_format(num,precision=1):
     magnitude = 0
@@ -121,19 +59,33 @@ P = PVE(host=H, u=U, pw=P, excludes=['pve3'])
 
 print("Dumping Nodes")
 nodes = P.get_nodes(full=True)
+
 print("Dumping VMs")
-vms = P.get_vms(full=True)
 
+#vms = P.get_vms(full=False, filter_node='pve2')
+vms = P.get_vms(full=True, )
 
-
-def foo(thing):
-    print(type(thing))
-    print(thing)
-    thing.show()
+print(vms)
 
 #print(nodes)
 [ x.show() for x in nodes ]
 [ x.show() for x in vms   ]
+
+temp_vms = vms.copy()
+for node in nodes:
+    print(node.name)
+    for tvm in temp_vms:
+        if tvm.node == node.name:
+            temp_vms.remove(tvm)
+            print('  {}'.format(tvm.name))
+
+
+print("Packing....")
+
+pack_size(nodes, vms)
+pack_size_rr(nodes, vms)
+pack_size_df(nodes, vms)
+
 
 
 #print(P.get_nodes())
