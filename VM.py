@@ -26,6 +26,12 @@ class VM:
         self.bias = bias
 
 
+    def get_node(self, node):
+        if self.node == node:
+            return True
+        return False
+
+
     def show(self, format=None):
         print(VM.fmt.format(
             vmid     = self.vmid,
