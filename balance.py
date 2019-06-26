@@ -19,7 +19,7 @@ from packing import *
 
 LOG_LEVEL=1
 
-log = logging.basicConfig(format='%(asctime)-15s [%(levelname)s] %(message)s', level=LOG_LEVEL)
+logging.basicConfig(format='%(asctime)-15s [%(levelname)s] %(message)s', level=LOG_LEVEL)
 
 
 H='pve3.ad.ibbr.umd.edu'
@@ -55,7 +55,8 @@ def human_format(num,precision=1):
 #show_nodes(nodes, vms)
 #show_vms(vms)
 
-P = PVE(host=H, u=U, pw=P, excludes=['pve3'])
+#P = PVE(host=H, u=U, pw=P, excludes=['pve3'])
+P = PVE(host=H, u=U, pw=P, excludes=['badnode'])
 
 print("Dumping Nodes")
 nodes = P.get_nodes(full=True)
@@ -72,15 +73,31 @@ print(vms)
 [ x.show() for x in vms   ]
 
 temp_vms = vms.copy()
-for node in nodes:
+
+#for tvm in sorted(temp_vms):
+#    log.info('{}: {}'.format(tvm.node, tvm.name))
+
+
+# Print vms by node
+for node in sorted(nodes):
     print(node.name)
-    for tvm in temp_vms:
+    for tvm in sorted(temp_vms):
         if tvm.node == node.name:
             temp_vms.remove(tvm)
             print('  {}'.format(tvm.name))
 
 
+temp_vms = vms.copy()
+temp_vms.sort(key=lambda x: x.area_perc())
+
+for tvm in temp_vms:
+    print('{:>25}: {}'.format(tvm.name, tvm.area_perc()))
+
+
+
 print("Packing....")
+
+
 
 pack_size(nodes, vms)
 pack_size_rr(nodes, vms)

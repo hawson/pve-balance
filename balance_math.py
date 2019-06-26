@@ -1,4 +1,5 @@
 # My silly implementation of some basic math routines
+# mostly on vectors of arbitrary length
 
 from math import sqrt
 from operator import mul

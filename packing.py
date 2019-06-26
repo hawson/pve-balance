@@ -1,6 +1,6 @@
 # Given a list of Hypervisors, and a loadout of VMs
 # pack them most efficiently.
-# Note that optimal packing assumes zero cost for 
+# Note that optimal packing assumes zero cost for
 # transitions. :)
 #
 #
@@ -38,27 +38,97 @@
 #  +-------------------------------+
 #                 CPU
 
-# a naive packing routine that only allocates by "size" of
-# a VM, filling a single node to capacity, then moving along 
-# to the next node.
+# The trick here is to *remove* the consumed resources from the next
+# iteration of placement.
 
 import logging
 log = logging.getLogger(__name__)
 
-def pack_size(nodes, vms):
+from balance_math import *
+
+
+# a naive packing routine that only allocates by "size" of
+# a VM, filling a single node to capacity, then moving along
+# to the next node.
+#
+# Valid sort keys=[ score, area, area_perc ]
+def pack_size(orig_nodes, orig_vms, key='area'):
     log.info("Packing by size")
+
+    vm_metrics = {}
+
+    nodes = sorted(orig_nodes.copy(), key=lambda n: n.area(), reverse=True)
+
+    for node in nodes:
+        node.allocated_vms = []
+
+    vms = orig_vms.copy() * 4
+
+    if   key == 'score':
+        log.info("Sorting by score.")
+        vms.sort(key=lambda v: v.score(), reverse=True)
+
+    elif key == 'area':
+        log.info("Sorting by area.")
+        vms.sort(key=lambda v: v.area(), reverse=True)
+
+    elif key == 'area_perc':
+        log.info("Sorting by area_perc.")
+        vms.sort(key=lambda v: v.area_perc(), reverse=True)
+
+
+
+    for vm in vms:
+        metrics = {}
+
+        # scale RAM to GB
+        metrics['area'] = vm.area()
+        metrics['area_perc'] = vm.area_perc()
+        metrics['score'] = vm.score()
+
+        vm_metrics[vm.vmid] = metrics
+
+    #print(vm_metrics)
+
+    #List is already sorted, so fill up as much as possible.
+    while vms:
+
+        allocations = 0
+
+        for vm in vms:
+            log.info("Attempt placing {}({:>3.3f})".format(vm, vm.area()))
+            for node in nodes:
+                log.info("  on {}({:>3.3f}):".format(node, node.area()))
+                if node.has_space(vm):
+                    node.allocate(vm)
+                    allocations += 1
+                    vms.remove(vm)
+                    break
+
+        if allocations == 0:
+            break
+
+    # Print vms by node
+    for node in sorted(nodes):
+        print(node.name)
+        for vm in sorted(node.allocated_vms):
+            print('  {}'.format(vm))
+
+
+
+
     return
 
 
-# a slightly less naive packing routine that only allocates "size", 
+# a slightly less naive packing routine that only allocates "size",
 # looping over all nodes at once, so long as there is capacity in
 # any node.
 def pack_size_rr(nodes, vms):
     log.info("Packing by size, RR")
     return
 
-# Try to allocate VMs to nodes based on similarities of node 
-# to hypervisors, based on dot-products of the (normalized) 
+# Try to allocate VMs to nodes based on similarities of node
+# to hypervisors, based on dot-products of the (normalized)
 # dimensions of the nodes and VMs.
 def pack_size_df(nodes,vms):
     log.info("Packing by DF")

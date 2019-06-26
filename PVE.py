@@ -67,6 +67,7 @@ class PVE():
 
         self.log.debug("Getting VMs.")
         i=0
+
         if self.vms is None:
             self.vms = []
 
@@ -77,6 +78,11 @@ class PVE():
                 else:
                     V = VM(data=vm)
                     self.vms.append(V)
+
+                    for n in self.nodes:
+                        if V.node == n.name:
+                            n.allocated_vms.append(V)
+                            break
 
         # Return a list of objects, or a list of vm names, depending
         # on the value of 'full'.  Also filter the output list by node
