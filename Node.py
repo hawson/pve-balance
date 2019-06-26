@@ -8,7 +8,7 @@ import functools
 class Node:
 
     # Formatting string fro score output
-    fmt='{name:25} {cpu}/{maxcpu}(%{cpu_perc}) {maxmem}G(%{mem_perc}) score: {score}'
+    fmt = '{name:25} {cpu}/{maxcpu}(%{cpu_perc}) {maxmem}G(%{mem_perc}) score: {score}'
 
     shown = False
 
@@ -23,13 +23,13 @@ class Node:
 
     def __init__(self, data=None, bias=0.0, minfreecpu=2, minfreemem_perc=0.15):
         if data:
-            for k,v in data.items():
+            for k, v in data.items():
                 setattr(self, k, v)
-            self.name=data['node']
+            self.name = data['node']
 
         self.log = logging.getLogger(__name__)
 
-        self.bias=bias
+        self.bias = bias
         self.allocated_vms = []
 
         self.freecpu = self.maxcpu
@@ -42,11 +42,11 @@ class Node:
     def __str__(self):
         return self.name
 
-    def __eq__(self,other):
-        return( (self.status, self.id)  == ( other.status, other.id) )
+    def __eq__(self, other):
+        return(self.status, self.id) == (other.status, other.id)
 
-    def __lt__(self,other):
-        return( (self.status, self.id)   < ( other.status, other.id) )
+    def __lt__(self, other):
+        return(self.status, self.id)  < (other.status, other.id)
 
 
     def area_perc(self):
@@ -60,10 +60,10 @@ class Node:
         return dash*n
 
 
-    def show(self, format=None):
+    def show(self):
 
         if not Node.shown:
-            Node.shown=True
+            Node.shown = True
             print(Node.fmt.format(
                 name=self.dash(25),
                 cpu=self.dash(3),
@@ -78,9 +78,9 @@ class Node:
             name     = self.id,
             cpu      = '{:>02.1f}'.format(self.cpu),
             maxcpu   = '{:>2}'.format(self.maxcpu),
-            cpu_perc = '{:>2.0f}'.format(float( float(self.cpu)/float(self.maxcpu )*100)),
+            cpu_perc = '{:>2.0f}'.format(float( float(self.cpu)/float(self.maxcpu)*100)),
             maxmem   = '{:>3.0f}'.format(int(self.maxmem / 2**30)),
-            mem_perc = '{:>2.0f}'.format(float( float(self.mem)/float(self.maxmem )*100)),
+            mem_perc = '{:>2.0f}'.format(float( float(self.mem)/float(self.maxmem)*100)),
             score    = self.score(full=True)
 
             #cpu      = '{d}'.format(self.cpu),
@@ -106,7 +106,7 @@ class Node:
 
     def has_space(self, vm):
         '''Takes a vm, and returns True/False if there is space for it'''
-        self.log.debug("    {} n{:>.1f} > v{:>.1f}  and n{} > v{}".format(self.name, self.freemem/2**30 ,vm.maxmem/2**30, self.freecpu , vm.maxcpu))
+        self.log.debug("    {} n{:>.1f} > v{:>.1f}  and n{} > v{}".format(self.name, self.freemem/2**30, vm.maxmem/2**30, self.freecpu, vm.maxcpu))
         if self.freemem - self.minfreemem > vm.maxmem:
             if self.freecpu - self.minfreecpu > vm.maxcpu:
                 return True
@@ -115,7 +115,7 @@ class Node:
 
 
 
-    def score(self, full=False, mode='total', biased=True, output='short'):
+    def score(self, full=False, mode='total', biased=True):
         score = 0.0
 
         node_score = 0.0
@@ -127,10 +127,8 @@ class Node:
             'net': 0.0,
             'disk': 0.0,
             'vm': 0.0,
-            'bias': self.bias,
+            'bias': self.bias if biased else 0.0,
         }
-
-        node_name = self.name
 
         if mode == 'total' or mode == 'node':
             # metrics we care about
@@ -143,13 +141,6 @@ class Node:
 
             scores['cpu'] = cpu/maxcpu * Node.weight['cpu']
             scores['mem'] = mem/maxmem * Node.weight['mem']
-
-#         if mode == 'total' or mode == 'vm':
-#            for vmid, vm in loadout.items():
-#                if vm['node'] != node_name:
-#                    continue
-#
-#                vm_score += score_vm(vm, biased)
 
         score = sum(scores.values())
 

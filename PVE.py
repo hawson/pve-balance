@@ -20,7 +20,7 @@ class PVE():
 
         self.nodes = None
         self.nodeobj = None
-        self.vms =  None
+        self.vms = None
         self.excludes = excludes
 
 
@@ -44,8 +44,6 @@ class PVE():
 
         self.log.debug("Getting nodes.")
 
-        i=0
-
         if self.nodes is None:
             self.nodes = []
             self.nodeobj = []
@@ -66,7 +64,6 @@ class PVE():
     def get_vms(self, full=False, filter_node=None):
 
         self.log.debug("Getting VMs.")
-        i=0
 
         if self.vms is None:
             self.vms = []
@@ -88,8 +85,6 @@ class PVE():
         # on the value of 'full'.  Also filter the output list by node
         # if requested
         if full:
-            return [ vm for vm in self.vms if (filter_node is None or vm.node == filter_node) ]
-        else:
-            return [ vm.name for vm in self.vms if (filter_node is None or vm.node == filter_node) ]
+            return [vm for vm in self.vms if (filter_node is None or vm.node == filter_node)]
 
-
+        return [vm.name for vm in self.vms if (filter_node is None or vm.node == filter_node)]

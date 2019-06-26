@@ -133,4 +133,3 @@ def pack_size_rr(nodes, vms):
 def pack_size_df(nodes,vms):
     log.info("Packing by DF")
     return
-

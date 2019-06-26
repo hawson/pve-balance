@@ -1,4 +1,5 @@
 # class for VMs
+'''Class for VMs'''
 
 import logging
 
@@ -7,7 +8,7 @@ import functools
 @functools.total_ordering
 class VM:
 
-    fmt='{vmid:5>} {name:>20}{state} {cpu}/{maxcpu}(%{cpu_perc}) {maxmem}G {node} score: {score}'
+    fmt = '{vmid:5>} {name:>20}{state} {cpu}/{maxcpu}(%{cpu_perc}) {maxmem}G {node} score: {score}'
 
 
     weight = {
@@ -21,8 +22,8 @@ class VM:
 
     def __init__(self, data=None, bias=0.0):
         if data:
-            for k,v in data.items():
-                setattr(self, k ,v)
+            for k, v in data.items():
+                setattr(self, k, v)
             self.name = data['name']
 
         self.log = logging.getLogger(__name__)
@@ -31,11 +32,11 @@ class VM:
     def __str__(self):
         return self.name
 
-    def __eq__(self,other):
-        return( (self.status, self.name, self.vmid)  == ( other.status, other.name, other.vmid) )
+    def __eq__(self, other):
+        return (self.status, self.name, self.vmid) == (other.status, other.name, other.vmid)
 
-    def __lt__(self,other):
-        return( (self.status, self.name, self.vmid)   < ( other.status, other.name, other.vmid) )
+    def __lt__(self, other):
+        return (self.status, self.name, self.vmid)  < (other.status, other.name, other.vmid)
 
 
     def get_node(self, node):
@@ -44,7 +45,7 @@ class VM:
         return False
 
 
-    def show(self, format=None):
+    def show(self):
         print(VM.fmt.format(
             vmid     = self.vmid,
             name     = self.name,
@@ -52,7 +53,7 @@ class VM:
             cpu      = '{:>03.1f}'.format(self.cpu),
             maxcpu   = '{:>2}'.format(self.maxcpu),
             node     = '{:>4}'.format(self.node),
-            cpu_perc = '{:>2.0f}'.format(float( float(self.cpu)/float(self.maxcpu )*100)),
+            cpu_perc = '{:>2.0f}'.format(float( float(self.cpu)/float(self.maxcpu)*100)),
             maxmem   = '{:>3.0f}'.format(float(self.maxmem / 2**30)),
             score    = self.score(full=True),
         ))
@@ -74,7 +75,7 @@ class VM:
             'mem':  self.maxmem * VM.weight['mem'] / 2**30,
             'net':  0.0         * VM.weight['net'],
             'disk': 0.0         * VM.weight['disk'],
-            'bias': self.bias,
+            'bias': self.bias if biased else 0.0,
         }
 
         score = sum(scores.values())
@@ -82,11 +83,9 @@ class VM:
 
         if full:
             return '{:< 6.3f} = {:5.3f} + {:5.3f} + {:3.1f}'.format(
-                    score,
-                    scores['cpu'],
-                    scores['mem'],
-                    scores['bias'],
-                    )
-        else:
-            return '{:< 6.3f}'.format(score)
-
+                score,
+                scores['cpu'],
+                scores['mem'],
+                scores['bias'],
+                )
+        return '{:< 6.3f}'.format(score)
