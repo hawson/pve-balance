@@ -7,11 +7,10 @@ import json
 
 import logging
 
-from balance_math import *
-
 from PVE import PVE
 
-from packing import *
+import packing
+import graphics
 
 
 
@@ -110,10 +109,12 @@ print("Packing....")
 
 
 
-pack_size(nodes, vms)
-pack_size_rr(nodes, vms)
-pack_size_df(nodes, vms)
+packing.pack_size(nodes, vms)
+packing.pack_size_rr(nodes, vms)
+packing.pack_size_df(nodes, vms)
 
+g=graphics.graphics('output', nodes, vms, height=600, width=800)
+g.save()
 
 
 #print(P.get_nodes())
