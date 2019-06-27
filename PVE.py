@@ -5,6 +5,7 @@ import logging
 
 from VM import VM
 from Node import Node
+from proxmoxer import ProxmoxAPI
 
 class PVE():
 

@@ -7,8 +7,6 @@ import json
 
 import logging
 
-from proxmoxer import ProxmoxAPI
-
 from balance_math import *
 
 from PVE import PVE
