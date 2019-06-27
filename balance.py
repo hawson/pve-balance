@@ -15,18 +15,14 @@ from packing import *
 
 
 
-LOG_LEVEL=1
+LOG_LEVEL = 1
 
 logging.basicConfig(format='%(asctime)-15s [%(levelname)s] %(message)s', level=LOG_LEVEL)
 
 
-H='pve3.ad.ibbr.umd.edu'
-U='monitoring@pve'
-P='monitoring'
-proxmox = ProxmoxAPI(H, password=P, user=U)
-
-
-
+H = 'pve3.ad.ibbr.umd.edu'
+U = 'monitoring@pve'
+P = 'monitoring'
 
 nodes = {}
 vms = {}
@@ -35,7 +31,7 @@ vms = {}
 # https://pve.proxmox.com/pve-docs/api-viewer/index.html
 #
 
-def human_format(num,precision=1):
+def human_format(num, precision=1):
     magnitude = 0
     while abs(num) >= 1024:
         magnitude += 1
@@ -61,14 +57,12 @@ nodes = P.get_nodes(full=True)
 
 print("Dumping VMs")
 
-#vms = P.get_vms(full=False, filter_node='pve2')
-vms = P.get_vms(full=True, )
 
 print(vms)
 
 #print(nodes)
-[ x.show() for x in nodes ]
-[ x.show() for x in vms   ]
+[x.show() for x in nodes]
+[x.show() for x in vms  ]
 
 temp_vms = vms.copy()
 
