@@ -57,12 +57,13 @@ def pack_size(orig_nodes, orig_vms, key='area'):
 
     vm_metrics = {}
 
+    # sort by the total "area"
     nodes = sorted(orig_nodes.copy(), key=lambda n: n.area(), reverse=True)
 
     for node in nodes:
         node.allocated_vms = []
 
-    vms = orig_vms.copy() * 4
+    vms = orig_vms.copy()
 
     if   key == 'score':
         log.info("Sorting by score.")
@@ -88,7 +89,7 @@ def pack_size(orig_nodes, orig_vms, key='area'):
 
         vm_metrics[vm.vmid] = metrics
 
-    #print(vm_metrics)
+    print(list(map(str,vms)))
 
     #List is already sorted, so fill up as much as possible.
     while vms:
@@ -100,6 +101,7 @@ def pack_size(orig_nodes, orig_vms, key='area'):
             for node in nodes:
                 log.info("  on {}({:>3.3f}):".format(node, node.area()))
                 if node.has_space(vm):
+                    log.info("  Placed {} on {}".format(vm, node))
                     node.allocate(vm)
                     allocations += 1
                     vms.remove(vm)
@@ -108,13 +110,17 @@ def pack_size(orig_nodes, orig_vms, key='area'):
         if allocations == 0:
             break
 
+    if vms:
+        log.error("Failed to place several VM! {}".format(list(map(str, vms))))
+    else:
+        log.info("Successfully packed all VMs")
+
+
     # Print vms by node
     for node in sorted(nodes):
         print(node.name)
         for vm in sorted(node.allocated_vms):
             print('  {}'.format(vm))
-
-
 
 
     return
