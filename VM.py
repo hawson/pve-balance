@@ -39,7 +39,10 @@ class VM:
         return (self.status, self.name, self.vmid)  < (other.status, other.name, other.vmid)
 
 
-    def get_node(self, node):
+    def get_node(self):
+        return self.node
+
+    def on_node(self, node):
         if self.node == node:
             return True
         return False
