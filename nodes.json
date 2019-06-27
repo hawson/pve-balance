@@ -1,0 +1,49 @@
+{
+  "data": [
+    {
+      "mem": 35772014592,
+      "maxdisk": 16578916352,
+      "status": "online",
+      "disk": 5839454208,
+      "maxcpu": 40,
+      "node": "pve1",
+      "uptime": 119893,
+      "maxmem": 134842212352,
+      "ssl_fingerprint": "C5:48:BB:72:74:20:3A:C5:11:54:5A:D2:99:88:E5:C6:68:50:28:43:A6:E5:B7:C4:E7:26:BC:F3:A5:72:38:EF",
+      "level": "",
+      "cpu": 0.00922492626193198,
+      "type": "node",
+      "id": "node/pve1"
+    },
+    {
+      "node": "pve2",
+      "uptime": 103941,
+      "mem": 24135696384,
+      "maxdisk": 16050479104,
+      "status": "online",
+      "disk": 5870358528,
+      "maxcpu": 32,
+      "id": "node/pve2",
+      "ssl_fingerprint": "73:22:CE:3C:09:40:9F:1C:96:23:78:6E:43:E8:F5:3C:49:EE:83:2A:F5:D1:38:92:0B:67:B6:FA:F7:09:2F:45",
+      "maxmem": 135080005632,
+      "level": "",
+      "type": "node",
+      "cpu": 0.0628066870992652
+    },
+    {
+      "cpu": 0.0172906380813619,
+      "type": "node",
+      "level": "",
+      "maxmem": 25204637696,
+      "ssl_fingerprint": "33:DF:AF:34:75:AF:7B:20:B3:5C:FB:98:1B:86:8C:15:5A:21:0F:02:72:18:60:8D:8D:44:CA:30:35:8C:42:8F",
+      "id": "node/pve3",
+      "disk": 4659027968,
+      "maxcpu": 8,
+      "status": "online",
+      "maxdisk": 31572529152,
+      "mem": 9326751744,
+      "uptime": 115179,
+      "node": "pve3"
+    }
+  ]
+}
