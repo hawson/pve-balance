@@ -1,6 +1,6 @@
 '''PICTUERS!'''
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 import sys
 import logging
 
@@ -14,8 +14,8 @@ class graphics:
         self.width = width
         self.filename = filename
 
-        self.x_max = int(max([getattr(n,'maxmem') for n in nodes ]))
-        self.y_max = int(max([getattr(n,'maxcpu') for n in nodes ]))
+        self.x_max = max([getattr(n,'maxmem') for n in nodes ])
+        self.y_max = max([getattr(n,'maxcpu') for n in nodes ])
 
         # One image per node
         self.image = {}
@@ -38,10 +38,11 @@ class graphics:
                 'py': 0,
             }
             self.image[node.name]['draw'] = ImageDraw.Draw(self.image[node.name]['img'])
+            #self.image[node.name]['font'] = ImageFont.truetype('FreeMono.ttf', 40)
 
-            i+=1
             self.log.debug("{}: {}x{}".format(self.image[node.name]['filename'], w, h ))
 
+            i+=1
 
 
             for vm in node.allocated_vms:
@@ -51,15 +52,22 @@ class graphics:
                 ox = self.image[node.name]['px']
                 oy = self.image[node.name]['py']
 
-                self.log.debug("Drawing {} on {} ({}x{})".format(vm.name, vm.node, ox,oy))
+                self.image[node.name]['px'] += self.scale(vm.maxmem, self.x_max, width)
+                self.image[node.name]['py'] += self.scale(vm.maxcpu, self.y_max, width)
 
-                self.image[node.name]['px'] += self.scale(vm.maxmem, self.x_max, width) + 1
-                self.image[node.name]['py'] += self.scale(vm.maxcpu, self.y_max, width) + 1
+                px = self.image[node.name]['px']
+                py = self.image[node.name]['py']
+
+
+                self.log.debug("Drawing {} on {} ({}x{})+({}x{})".format(vm.name, node.name, ox,oy, px, py))
+                self.log.debug("        {} area={} area_perc={:.3f} score={}".format(vm.name, vm.area(), vm.area_perc(), vm.score()))
+
                 self.image[node.name]['draw'].rectangle( 
-                        [(ox, oy), (self.image[node.name]['px'], self.image[node.name]['py'])], 
+                        [(ox, oy), (px, py)], 
                         outline=(0,0,0),
                         fill=None
                         )
+                self.image[node.name]['draw'].text( (ox+2,oy+2), vm.name, fill=(0,0,0,255))
 
 
 
