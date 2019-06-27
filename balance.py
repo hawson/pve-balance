@@ -108,12 +108,12 @@ for tvm in temp_vms:
 print("Packing....")
 
 
+pack = {}
+pack = packing.pack_size(nodes, vms)
+#packing.pack_size_rr(nodes, vms)
+#packing.pack_size_df(nodes, vms)
 
-packing.pack_size(nodes, vms)
-packing.pack_size_rr(nodes, vms)
-packing.pack_size_df(nodes, vms)
-
-g=graphics.graphics('output', nodes, vms, height=600, width=800)
+g=graphics.graphics('output', pack, nodes, vms, height=600, width=800)
 g.save()
 
 
