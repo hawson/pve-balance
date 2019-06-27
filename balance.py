@@ -43,19 +43,38 @@ def human_format(num, precision=1):
 
 
 
-#nodes = get_stats_node(proxmox, exclude='badnode')
-#vms   = get_stats_vm(proxmox, exclude=['cephtest2'])
+if len(sys.argv)>1:
+    import Node
+    import VM
 
-#show_nodes(nodes, vms)
-#show_vms(vms)
+    fp = open(sys.argv[1])
+    node_list = json.load(fp)
+    fp.close()
 
-#P = PVE(host=H, u=U, pw=P, excludes=['pve3'])
-P = PVE(host=H, u=U, pw=P, excludes=['badnode'])
+    fp = open(sys.argv[2])
+    vm_list = json.load(fp)
+    fp.close()
 
-print("Dumping Nodes")
-nodes = P.get_nodes(full=True)
+    print(node_list)
 
-print("Dumping VMs")
+    nodes = [ Node.Node(data=n) for n in node_list['data'] ]
+    vms = [ VM.VM(data=v) for v in vm_list['data'] ]
+
+    print(nodes)
+    print(vms)
+
+else:
+    #proxmox = ProxmoxAPI(H, password=P, user=U)
+    #P = PVE(host=H, u=U, pw=P, excludes=['pve3'])
+    P = PVE(host=H, u=U, pw=P, excludes=['badnode'])
+
+    print("Dumping Nodes")
+    nodes = P.get_nodes(full=True)
+
+    print("Dumping VMs")
+
+    #vms = P.get_vms(full=False, filter_node='pve2')
+    vms = P.get_vms(full=True, )
 
 
 print(vms)
