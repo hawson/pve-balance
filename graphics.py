@@ -30,18 +30,27 @@ class graphics:
             w = int(node.maxmem / self.x_max * width)
             h = int(node.maxcpu / self.y_max * height)
 
+            cpu_y = int(node.minfreecpu/node.maxcpu * height)
+            mem_x = int(node.minfreemem/node.maxmem * width)
+
+            # Create a new image
             self.image[node.name] = {
                 'img': Image.new('RGB', (w, h), (255,255,255)),
                 'filename': '{}.png'.format(node.name),
                 'px': 0,
                 'py': 0,
             }
+
+            # Make a drawing canvas
             self.image[node.name]['draw'] = ImageDraw.Draw(self.image[node.name]['img'])
-            #self.image[node.name]['font'] = ImageFont.truetype('FreeMono.ttf', 40)
+
+            self.image[node.name]['draw'].line((0,h-cpu_y, w,h-cpu_y), fill='#a00')  # min CPU line
+            self.image[node.name]['draw'].line((w-mem_x,0, w-mem_x,h), fill='#00a')  # min MEM line
+
+            self.image[node.name]['draw'].text((int(w/2), h-cpu_y), "CPU", align="center", directon='ttb', fill=(0,0,0,255))
+            self.image[node.name]['draw'].text((w-mem_x, int(h/2)), "MEM", align="center", directon='ltr', fill=(0,0,0,255))
 
             self.log.debug("{}: {}x{}".format(self.image[node.name]['filename'], w, h ))
-
-            i+=1
 
 
             for vm in node.allocated_vms:
@@ -66,7 +75,7 @@ class graphics:
                         outline=(0,0,0),
                         fill=None
                         )
-                self.image[node.name]['draw'].text( (ox+2,oy+2), vm.name, fill=(0,0,0,255))
+                self.image[node.name]['draw'].text( (ox+2,oy+1), vm.name, fill=(0,0,0,255))
 
 
 
