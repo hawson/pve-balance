@@ -93,21 +93,32 @@ def pack_size(orig_nodes, orig_vms, key='area'):
 
 
     #List is already sorted, so fill up as much as possible.
+    allocated_vms = []
     while vms:
 
         allocations = 0
 
 
         for vm in vms:
-            log.info("Attempt placing {}({:>3.3f})".format(vm, vm.area()))
+            #print(list(map(str,vms)))
+            #print(list(map(str,allocated_vms)))
+            log.info("Attempt placing {}({:>.1f}GB,{} cpu) = {}".format(vm, vm.maxmem/2**30, vm.maxcpu, vm.area()))
+            allocated = False
             for node in nodes:
-                log.info("  on {}({:>3.3f}):".format(node, node.area()))
-                if node.has_space(vm):
+                log.info("  on {}:".format(node))
+                if node.allocate(vm):
                     log.info("  Placed {} on {}".format(vm, node))
-                    node.allocate(vm)
                     allocations += 1
-                    vms.remove(vm)
+                    allocated_vms.append(vm)
+                    allocated = True
                     break
+
+            if not allocated:
+                log.info("  Failed to place {}".format(vm))
+
+        for v in allocated_vms:
+            if v in vms:
+                vms.remove(v)
 
         if allocations == 0:
             break
