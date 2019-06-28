@@ -95,7 +95,7 @@ class Node:
 
 
     def allocate(self, vm):
-        if self.has_space(vm, quiet=True):
+        if self.has_space(vm, quiet=False):
             self.freemem -= vm.maxmem
             self.freecpu -= vm.maxcpu
             self.allocated_vms.append(vm)
@@ -107,7 +107,9 @@ class Node:
     def has_space(self, vm, quiet=False):
         '''Takes a vm, and returns True/False if there is space for it'''
         if not quiet:
-            self.log.debug("    {} n{:>.1f} > v{:>.1f}  and n{} > v{}".format(self.name, self.freemem/2**30, vm.maxmem/2**30, self.freecpu, vm.maxcpu))
+            self.log.debug("    {} M{:>.1f}-{:>.1f} > v{:>.1f}  and n{}-{} > v{}".format(self.name,
+                self.freemem/2**30, self.minfreemem/2**30, vm.maxmem/2**30,
+                self.freecpu, self.minfreecpu, vm.maxcpu))
         if self.freemem - self.minfreemem > vm.maxmem:
             if self.freecpu - self.minfreecpu > vm.maxcpu:
                 return True
