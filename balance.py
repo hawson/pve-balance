@@ -98,11 +98,10 @@ for node in sorted(nodes):
 
 
 temp_vms = vms.copy()
-temp_vms.sort(key=lambda x: x.area_perc())
+temp_vms.sort(key=lambda x: x.area())
 
 for tvm in temp_vms:
     print('{:>25}: {}'.format(tvm.name, tvm.area_perc()))
-
 
 
 print("Packing....")
