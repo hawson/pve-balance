@@ -66,7 +66,6 @@ class graphics:
                 px = self.image[node.name]['px']
                 py = self.image[node.name]['py']
 
-
                 self.log.debug("Drawing {} on {} ({}x{})+({}x{})".format(vm.name, node.name, ox,oy, px, py))
                 self.log.debug("        {} area={} area_perc={:.3f} score={}".format(vm.name, vm.area(), vm.area_perc(), vm.score()))
 

@@ -51,6 +51,8 @@ from balance_math import *
 # a VM, filling a single node to capacity, then moving along
 # to the next node.
 #
+# Returns a list of *NEW* nodes with the new packing
+#
 # Valid sort keys=[ score, area, area_perc ]
 def pack_size(orig_nodes, orig_vms, key='area'):
     log.info("Packing by size")
@@ -58,12 +60,13 @@ def pack_size(orig_nodes, orig_vms, key='area'):
     vm_metrics = {}
 
     # sort by the total "area"
+    vms = orig_vms.copy()
+
     nodes = sorted(orig_nodes.copy(), key=lambda n: n.area(), reverse=True)
 
     for node in nodes:
         node.allocated_vms = []
 
-    vms = orig_vms.copy()
 
     if   key == 'score':
         log.info("Sorting by score.")
@@ -78,7 +81,6 @@ def pack_size(orig_nodes, orig_vms, key='area'):
         vms.sort(key=lambda v: v.area_perc(), reverse=True)
 
 
-
     for vm in vms:
         metrics = {}
 
@@ -89,12 +91,12 @@ def pack_size(orig_nodes, orig_vms, key='area'):
 
         vm_metrics[vm.vmid] = metrics
 
-    print(list(map(str,vms)))
 
     #List is already sorted, so fill up as much as possible.
     while vms:
 
         allocations = 0
+
 
         for vm in vms:
             log.info("Attempt placing {}({:>3.3f})".format(vm, vm.area()))
