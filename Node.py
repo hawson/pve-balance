@@ -21,7 +21,7 @@ class Node:
     }
 
 
-    def __init__(self, data=None, bias=0.0, minfreecpu=2, minfreemem_perc=0.15):
+    def __init__(self, data=None, bias=0.0, minfreecpu=1, minfreemem_perc=0.10):
         if data:
             for k, v in data.items():
                 setattr(self, k, v)
@@ -36,7 +36,7 @@ class Node:
         self.freemem = self.maxmem - self.mem
 
         self.minfreecpu = minfreecpu
-        self.minfreemem = minfreemem_perc
+        self.minfreemem = minfreemem_perc * self.maxmem
 
 
     def __str__(self):
