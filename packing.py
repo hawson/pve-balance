@@ -123,7 +123,7 @@ def pack_size(orig_nodes, orig_vms, key='area'):
             print('  {}'.format(vm))
 
 
-    return
+    return nodes
 
 
 # a slightly less naive packing routine that only allocates "size",

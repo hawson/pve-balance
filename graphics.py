@@ -6,13 +6,12 @@ import logging
 
 class graphics:
 
-    def __init__(self, pack, filename, nodes, vms, height=None, width=None):
+    def __init__(self,  nodes, vms, height=None, width=None):
 
         self.log = logging.getLogger(__name__)
 
         self.height = height
         self.width = width
-        self.filename = filename
 
         self.x_max = max([getattr(n,'maxmem') for n in nodes ])
         self.y_max = max([getattr(n,'maxcpu') for n in nodes ])
