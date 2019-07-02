@@ -29,7 +29,13 @@ class graphics:
         self.filenames = {}
         self.vm_map = {}
 
+        self.px_per_memGB=width / self.x_max
+        self.px_per_cpu=height / self.y_max
+
         i=0
+
+        self.log.debug("MaximumX: {}/{}px MaximumY: {}/{}px".format(self.x_max, self.px_per_memGB, self.y_max, self.px_per_cpu))
+
 
         for node in nodes:
 
