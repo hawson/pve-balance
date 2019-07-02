@@ -45,8 +45,11 @@ class graphics:
             w = int(node.maxmem_gb / self.x_max * width)
             h = int(node.maxcpu / self.y_max * height)
 
-            cpu_y = int(node.minfreecpu/node.maxcpu * height)
-            mem_x = int(node.minfreemem/node.maxmemGB * width)
+            # minfree lines for CPU (Y-axis, so horiz. line) and MEM (X-axis, so vert. line)
+            cpu_y = node.minfreecpu * self.px_per_cpu
+            mem_x = node.minfreemem/2**30 * self.px_per_mem_gb
+            #cpu_y = int(node.minfreecpu/node.maxcpu * height)
+            #mem_x = int(node.minfreemem/2**30/node.maxmem_gb * width)
 
             self.log.info("Scaling Mem({:.1f})/CPU({}) -> {}x{} (of {}x{})".format(
                 node.maxmem_gb, node.maxcpu, w,h, width, height))
