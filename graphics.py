@@ -16,11 +16,12 @@ class graphics:
 
         xs = [getattr(n,'maxmemGB') for n in nodes ]
         ys = [getattr(n,'maxcpu') for n in nodes ]
-        self.log.debug("X={}".format(str(xs)))
-        self.log.debug("Y={}".format(str(ys)))
 
-        self.x_max = max([getattr(n,'maxmem') for n in nodes ])
-        self.y_max = max([getattr(n,'maxcpu') for n in nodes ])
+        self.x_max = max(xs)
+        self.y_max = max(ys)
+
+        self.log.debug("{}: X={}".format(self.x_max, str(xs)))
+        self.log.debug("{}: Y={}".format(self.y_max, str(ys)))
 
         # One image per node
         self.image = {}
@@ -39,15 +40,15 @@ class graphics:
 
         for node in nodes:
 
-            w = int(node.maxmem / self.x_max * width)
+            w = int(node.maxmemGB / self.x_max * width)
             h = int(node.maxcpu / self.y_max * height)
 
             cpu_y = int(node.minfreecpu/node.maxcpu * height)
-            mem_x = int(node.minfreemem/node.maxmem * width)
+            mem_x = int(node.minfreemem/node.maxmemGB * width)
 
             self.log.info("Scaling Mem({:.1f})/CPU({}) -> {}x{} (of {}x{}).  Thresholds at cpu:{} mem:{}".format(
                 node.maxmemGB, node.maxcpu, w,h, width, height, w-mem_x, h-cpu_y))
-            self.log.info("1xCPU={} 1xMemGB={}".format(height/node.maxcpu, width/node.maxmemGB))
+            self.log.info("1xCPU={} 1xMemGB={}".format(self.px_per_cpu, self.px_per_memGB))
 
             # Create a new image
             self.image[node.name] = {
@@ -71,13 +72,13 @@ class graphics:
 
             for vm in node.allocated_vms:
 
-                # Note:  we cannot use "vm.node", since that's the "old" placement, not the new one
+                # Note:  we cannot use "vm.node", since that's the "old" placement, not the new packed one one
 
                 ox = self.image[node.name]['px']
                 oy = self.image[node.name]['py']
 
-                self.image[node.name]['px'] += self.scale(vm.maxmem, self.x_max, width)
-                self.image[node.name]['py'] += self.scale(vm.maxcpu, self.y_max, height)
+                self.image[node.name]['px'] += vm.maxmemGB * self.px_per_memGB
+                self.image[node.name]['py'] += vm.maxcpu   * self.px_per_cpu
 
                 px = self.image[node.name]['px']
                 py = self.image[node.name]['py']
@@ -94,8 +95,9 @@ class graphics:
 
 
 
-    def box(self, x1,x2, y1,y3, title=None, border=None):
 
+
+    def box(self, x1,x2, y1,y3, title=None, border=None):
         return
 
 
