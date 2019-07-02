@@ -26,6 +26,9 @@ class VM:
                 setattr(self, k, v)
             self.name = data['name']
 
+        self.maxmemGB = float(self.maxmem / 2**30)
+        self.memGB = float(self.mem / 2**30)
+
         self.log = logging.getLogger(__name__)
         self.bias = bias
 
@@ -57,15 +60,15 @@ class VM:
             maxcpu   = '{:>2}'.format(self.maxcpu),
             node     = '{:>4}'.format(self.node),
             cpu_perc = '{:>2.0f}'.format(float( float(self.cpu)/float(self.maxcpu)*100)),
-            maxmem   = '{:>3.0f}'.format(float(self.maxmem / 2**30)),
+            maxmem   = '{:>3.0f}'.format(self.maxmemGB),
             score    = self.score(full=True),
         ))
 
     def area_perc(self):
-        return float(self.mem / 2**30) * self.cpu
+        return float(self.memGB) * self.cpu
 
     def area(self):
-        return float(self.maxmem / 2**30) * self.maxcpu
+        return float(self.maxmemGB) * self.maxcpu
 
     def score(self, biased=True, full=False):
 
@@ -74,10 +77,10 @@ class VM:
         score = 0.0
 
         scores = {
-            'cpu':  self.cpu    * VM.weight['cpu'],
-            'mem':  self.maxmem * VM.weight['mem'] / 2**30,
-            'net':  0.0         * VM.weight['net'],
-            'disk': 0.0         * VM.weight['disk'],
+            'cpu':  self.cpu      * VM.weight['cpu'],
+            'mem':  self.maxmemGB * VM.weight['mem'],
+            'net':  0.0           * VM.weight['net'],
+            'disk': 0.0           * VM.weight['disk'],
             'bias': self.bias if biased else 0.0,
         }
 

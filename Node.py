@@ -35,6 +35,9 @@ class Node:
         self.freecpu = self.maxcpu
         self.freemem = self.maxmem - self.mem
 
+        self.maxmemGB = self.maxmem/2**30
+        self.memGB = self.mem/2**30
+
         self.minfreecpu = minfreecpu
         self.minfreemem = minfreemem_perc * self.maxmem
 
@@ -50,10 +53,10 @@ class Node:
 
 
     def area_perc(self):
-        return float(self.mem / 2**30) * self.cpu
+        return float(self.memGB) * self.cpu
 
     def area(self):
-        return float(self.maxmem / 2**30) * self.maxcpu
+        return float(self.maxmemGB) * self.maxcpu
 
 
     def dash(self,n, dash='-'):
@@ -79,7 +82,7 @@ class Node:
             cpu      = '{:>02.1f}'.format(self.cpu),
             maxcpu   = '{:>2}'.format(self.maxcpu),
             cpu_perc = '{:>2.0f}'.format(float( float(self.cpu)/float(self.maxcpu)*100)),
-            maxmem   = '{:>3.0f}'.format(int(self.maxmem / 2**30)),
+            maxmem   = '{:>3.0f}'.format(int(self.maxmemGB)),
             mem_perc = '{:>2.0f}'.format(float( float(self.mem)/float(self.maxmem)*100)),
             score    = self.score(full=True)
 
@@ -107,9 +110,12 @@ class Node:
     def has_space(self, vm, quiet=False):
         '''Takes a vm, and returns True/False if there is space for it'''
         if not quiet:
-            self.log.debug("    {} M{:>.1f}-{:>.1f} > v{:>.1f}  and n{}-{} > v{}".format(self.name,
-                self.freemem/2**30, self.minfreemem/2**30, vm.maxmem/2**30,
-                self.freecpu, self.minfreecpu, vm.maxcpu))
+            mem_delta = self.freemem/2**30 - self.minfreemem/2**30
+            cpu_delta = self.freecpu - self.minfreecpu
+            self.log.debug("    {} (M{:>.1f}-m{:>.1f}=F{:>.1f}) > v{:>.1f}  and (n{}-{}={}) > v{}".format(
+                self.name,
+                self.freemem/2**30, self.minfreemem/2**30, mem_delta, vm.maxmemGB,
+                self.freecpu, self.minfreecpu, cpu_delta, vm.maxcpu))
         if self.freemem - self.minfreemem > vm.maxmem:
             if self.freecpu - self.minfreecpu > vm.maxcpu:
                 return True

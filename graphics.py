@@ -13,6 +13,12 @@ class graphics:
         self.height = height
         self.width = width
 
+
+        xs = [getattr(n,'maxmemGB') for n in nodes ]
+        ys = [getattr(n,'maxcpu') for n in nodes ]
+        self.log.debug("X={}".format(str(xs)))
+        self.log.debug("Y={}".format(str(ys)))
+
         self.x_max = max([getattr(n,'maxmem') for n in nodes ])
         self.y_max = max([getattr(n,'maxcpu') for n in nodes ])
 
@@ -32,6 +38,10 @@ class graphics:
 
             cpu_y = int(node.minfreecpu/node.maxcpu * height)
             mem_x = int(node.minfreemem/node.maxmem * width)
+
+            self.log.info("Scaling Mem({:.1f})/CPU({}) -> {}x{} (of {}x{}).  Thresholds at cpu:{} mem:{}".format(
+                node.maxmemGB, node.maxcpu, w,h, width, height, w-mem_x, h-cpu_y))
+            self.log.info("1xCPU={} 1xMemGB={}".format(height/node.maxcpu, width/node.maxmemGB))
 
             # Create a new image
             self.image[node.name] = {
