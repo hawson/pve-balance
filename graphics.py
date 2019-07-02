@@ -71,7 +71,7 @@ class graphics:
                 oy = self.image[node.name]['py']
 
                 self.image[node.name]['px'] += self.scale(vm.maxmem, self.x_max, width)
-                self.image[node.name]['py'] += self.scale(vm.maxcpu, self.y_max, width)
+                self.image[node.name]['py'] += self.scale(vm.maxcpu, self.y_max, height)
 
                 px = self.image[node.name]['px']
                 py = self.image[node.name]['py']
