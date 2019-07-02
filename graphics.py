@@ -1,8 +1,8 @@
 '''PICTUERS!'''
 
-from PIL import Image, ImageDraw, ImageFont
 import sys
 import logging
+from PIL import Image, ImageDraw, ImageFont
 
 class graphics:
 
@@ -14,7 +14,11 @@ class graphics:
         self.width = width
 
 
-        xs = [getattr(n,'maxmemGB') for n in nodes ]
+        # Find the largest resource values for X (memory) and Y (CPUs)
+        # across all nodes, so that they can be scaled to the requested
+        # image dimensions.
+
+        xs = [getattr(n,'maxmem_gb') for n in nodes ]
         ys = [getattr(n,'maxcpu') for n in nodes ]
 
         self.x_max = max(xs)
@@ -30,25 +34,24 @@ class graphics:
         self.filenames = {}
         self.vm_map = {}
 
-        self.px_per_memGB=width / self.x_max
-        self.px_per_cpu=height / self.y_max
+        self.px_per_mem_gb = width / self.x_max
+        self.px_per_cpu  = height / self.y_max
 
-        i=0
-
-        self.log.debug("MaximumX: {}/{}px MaximumY: {}/{}px".format(self.x_max, self.px_per_memGB, self.y_max, self.px_per_cpu))
-
+        self.log.debug("MaximumX: {:>.1f}/{:>.1f}px MaximumY: {}/{:>.1f}px".format(self.x_max, self.px_per_mem_gb, self.y_max, self.px_per_cpu))
 
         for node in nodes:
 
-            w = int(node.maxmemGB / self.x_max * width)
+            # width and height in px of the image for this node.
+            w = int(node.maxmem_gb / self.x_max * width)
             h = int(node.maxcpu / self.y_max * height)
 
             cpu_y = int(node.minfreecpu/node.maxcpu * height)
             mem_x = int(node.minfreemem/node.maxmemGB * width)
 
-            self.log.info("Scaling Mem({:.1f})/CPU({}) -> {}x{} (of {}x{}).  Thresholds at cpu:{} mem:{}".format(
-                node.maxmemGB, node.maxcpu, w,h, width, height, w-mem_x, h-cpu_y))
-            self.log.info("1xCPU={} 1xMemGB={}".format(self.px_per_cpu, self.px_per_memGB))
+            self.log.info("Scaling Mem({:.1f})/CPU({}) -> {}x{} (of {}x{})".format(
+                node.maxmem_gb, node.maxcpu, w,h, width, height))
+            self.log.info("  Thresholds at mem:({}-{})={} cpu:({}-{})={}".format(w,mem_x,w-mem_x, h,cpu_y,h-cpu_y))
+            self.log.info("1xCPU={} 1xMemGB={}".format(self.px_per_cpu, self.px_per_mem_gb))
 
             # Create a new image
             self.image[node.name] = {
@@ -61,9 +64,11 @@ class graphics:
             # Make a drawing canvas
             self.image[node.name]['draw'] = ImageDraw.Draw(self.image[node.name]['img'])
 
+            # minimum lines
             self.image[node.name]['draw'].line((0,h-cpu_y, w,h-cpu_y), fill='#a00')  # min CPU line
             self.image[node.name]['draw'].line((w-mem_x,0, w-mem_x,h), fill='#00a')  # min MEM line
 
+            # labels for minimum lines
             self.image[node.name]['draw'].text((int(w/2), h-cpu_y), "CPU", align="center", directon='ttb', fill=(0,0,0,255))
             self.image[node.name]['draw'].text((w-mem_x, int(h/2)), "MEM", align="center", directon='ltr', fill=(0,0,0,255))
 
@@ -77,7 +82,7 @@ class graphics:
                 ox = self.image[node.name]['px']
                 oy = self.image[node.name]['py']
 
-                self.image[node.name]['px'] += vm.maxmemGB * self.px_per_memGB
+                self.image[node.name]['px'] += vm.maxmem_gb * self.px_per_mem_gb
                 self.image[node.name]['py'] += vm.maxcpu   * self.px_per_cpu
 
                 px = self.image[node.name]['px']
@@ -86,30 +91,21 @@ class graphics:
                 self.log.debug("Drawing {} on {} ({}x{})+({}x{})".format(vm.name, node.name, ox,oy, px, py))
                 self.log.debug("        {} area={} area_perc={:.3f} score={}".format(vm.name, vm.area(), vm.area_perc(), vm.score()))
 
-                self.image[node.name]['draw'].rectangle( 
-                        [(ox, oy), (px, py)], 
-                        outline=(0,0,0),
-                        fill=None
-                        )
+                self.image[node.name]['draw'].rectangle(
+                    [(ox, oy), (px, py)], 
+                    outline=(0,0,0),
+                    fill=None
+                    )
                 self.image[node.name]['draw'].text( (ox+2,oy+1), vm.name, fill=(0,0,0,255))
 
 
 
 
 
-    def box(self, x1,x2, y1,y3, title=None, border=None):
-        return
-
-
     def save(self):
         for node in self.image:
             fname = self.image[node]['filename']
             self.image[node]['img'].save(fname, 'PNG')
-        return
-
-
-    def scale(self, x, maximum, width):
-        return int(x/maximum*width)
 
 
 if __name__ == "__main__":

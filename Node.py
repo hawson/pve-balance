@@ -1,11 +1,15 @@
 # simple class for nodes.  Mostly a wrapper around
 # data from proxmoxer
+'''The Node class represents a Proxmox hypervisor, and includes
+broad specifications of resources (mostly CPU, RAM and disk), and current
+utilization of those resources (CPU, RAM, disk, and network).'''
 
 import logging
 import functools
 
 @functools.total_ordering
 class Node:
+    '''Main node class.'''
 
     # Formatting string fro score output
     fmt = '{name:25} {cpu}/{maxcpu}(%{cpu_perc}) {maxmem}G(%{mem_perc}) score: {score}'
@@ -22,21 +26,23 @@ class Node:
 
 
     def __init__(self, data=None, bias=0.0, minfreecpu=1, minfreemem_perc=0.10):
+        '''Intialize based on the JSON blob handed to us, plus several 
+        additional values either passed in (min free specs, bias), or computed.'''
         if data:
-            for k, v in data.items():
-                setattr(self, k, v)
+            for key, value in data.items():
+                setattr(self, key, value)
             self.name = data['node']
 
         self.log = logging.getLogger(__name__)
 
-        self.bias = bias
         self.allocated_vms = []
+        self.bias = bias
 
         self.freecpu = self.maxcpu
         self.freemem = self.maxmem - self.mem
 
-        self.maxmemGB = self.maxmem/2**30
-        self.memGB = self.mem/2**30
+        self.maxmem_gb = self.maxmem/2**30
+        self.mem_gb = self.mem/2**30
 
         self.minfreecpu = minfreecpu
         self.minfreemem = minfreemem_perc * self.maxmem
@@ -49,21 +55,29 @@ class Node:
         return(self.status, self.id) == (other.status, other.id)
 
     def __lt__(self, other):
-        return(self.status, self.id)  < (other.status, other.id)
+        return(self.status, self.id) < (other.status, other.id)
 
 
-    def area_perc(self):
-        return float(self.memGB) * self.cpu
+    def area_perc(self, minfree=False):
+        '''returns the "area" based on the utilization numbers, not the potentially available resources'''
+        if minfree:
+            return float(self.mem_gb - self.minfreemem/2**30) * (self.cpu - self.minfreecpu)
+        return float(self.mem_gb) * self.cpu
 
-    def area(self):
-        return float(self.maxmemGB) * self.maxcpu
+    def area(self, minfree=False):
+        '''returns the "area" based on the potentially available resources'''
+        if minfree:
+            return float(self.maxmem_gb - self.minfreemem/2**30) * (self.maxcpu - self.minfreecpu)
+        return float(self.maxmem_gb) * self.maxcpu
 
 
-    def dash(self,n, dash='-'):
-        return dash*n
+    def dash(self, num_dashes, dash='-'):
+        '''return a bunch of dashes'''
+        return dash*num_dashes
 
 
     def show(self):
+        '''Pretty print a node, for use in tables and reports and such'''
 
         if not Node.shown:
             Node.shown = True
@@ -82,7 +96,7 @@ class Node:
             cpu      = '{:>02.1f}'.format(self.cpu),
             maxcpu   = '{:>2}'.format(self.maxcpu),
             cpu_perc = '{:>2.0f}'.format(float( float(self.cpu)/float(self.maxcpu)*100)),
-            maxmem   = '{:>3.0f}'.format(int(self.maxmemGB)),
+            maxmem   = '{:>3.0f}'.format(int(self.maxmem_gb)),
             mem_perc = '{:>2.0f}'.format(float( float(self.mem)/float(self.maxmem)*100)),
             score    = self.score(full=True)
 
@@ -94,10 +108,14 @@ class Node:
             #score    = score_node(name,loadout, mode='total', output='full'),
         ))
 
-        return
-
 
     def allocate(self, vm):
+        '''Allocate a VM to a node, if there is space.  "Free" resources
+        are deducted accordingly.  True is returned if the node was
+        allocated; False is returned otherwise.  If a vm is allocated,
+        the self.allocated_vms list is updated accordingly with a copy
+        of the VMa.'''
+
         if self.has_space(vm, quiet=False):
             self.freemem -= vm.maxmem
             self.freecpu -= vm.maxcpu
@@ -114,7 +132,7 @@ class Node:
             cpu_delta = self.freecpu - self.minfreecpu
             self.log.debug("    {} (M{:>.1f}-m{:>.1f}=F{:>.1f}) > v{:>.1f}  and (n{}-{}={}) > v{}".format(
                 self.name,
-                self.freemem/2**30, self.minfreemem/2**30, mem_delta, vm.maxmemGB,
+                self.freemem/2**30, self.minfreemem/2**30, mem_delta, vm.maxmem_gb,
                 self.freecpu, self.minfreecpu, cpu_delta, vm.maxcpu))
         if self.freemem - self.minfreemem > vm.maxmem:
             if self.freecpu - self.minfreecpu > vm.maxcpu:
@@ -122,13 +140,12 @@ class Node:
         return False
 
 
-
-
     def score(self, full=False, mode='total', biased=True):
-        score = 0.0
+        '''"Score" the node, based on various resource usage, weighting,
+        and bias.  Generally speaking, the score is the weighted %actual
+        usage plus a bias for the node (if any)'''
 
-        node_score = 0.0
-        vm_score   = 0.0
+        score = 0.0
 
         scores = {
             'cpu': 0.0,
@@ -139,7 +156,7 @@ class Node:
             'bias': self.bias if biased else 0.0,
         }
 
-        if mode == 'total' or mode == 'node':
+        if mode in [ 'total', 'node']:
             # metrics we care about
             cpu    = self.cpu
             maxcpu = self.maxcpu
@@ -155,11 +172,9 @@ class Node:
 
         if full:
             return '{:6.3f} = {:5.3f} + {:5.3f} + {:3.1f}'.format(
-                    score,
-                    scores['cpu'],
-                    scores['mem'],
-                    scores['bias'],
-                    )
-        else:
-            return '{:>.3f}'.format(score)
-
+                score,
+                scores['cpu'],
+                scores['mem'],
+                scores['bias'],
+            )
+        return '{:>.3f}'.format(score)

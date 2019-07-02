@@ -1,9 +1,9 @@
-# Given a list of Hypervisors, and a loadout of VMs
-# pack them most efficiently.
-# Note that optimal packing assumes zero cost for
-# transitions. :)
-#
-#
+'''Given a list of Hypervisors, and a loadout of VMs
+pack them most efficiently.
+Note that optimal packing assumes zero cost for
+transitions. :)'''
+
+
 # Packing is done via a dot-product method, initially
 # using CPU and RAM.  The idea is to sort, placing the
 # larger VMs first, adding them to the hypervisor (or "bin")
@@ -42,19 +42,16 @@
 # iteration of placement.
 
 import logging
-log = logging.getLogger(__name__)
-
 from balance_math import *
 
+log = logging.getLogger(__name__)
 
-# a naive packing routine that only allocates by "size" of
-# a VM, filling a single node to capacity, then moving along
-# to the next node.
-#
-# Returns a list of *NEW* nodes with the new packing
-#
-# Valid sort keys=[ score, area, area_perc ]
 def pack_size(orig_nodes, orig_vms, key='area'):
+    '''A naive packing routine that only allocates by "size" of
+    a VM, filling a single node to capacity, then moving along
+    to the next node.  Returns a list of *NEW* nodes with the new packing
+    Valid sort keys=[ score, area, area_perc ]'''
+
     log.info("Packing by size")
 
     vm_metrics = {}
@@ -116,9 +113,9 @@ def pack_size(orig_nodes, orig_vms, key='area'):
             if not allocated:
                 log.info("  Failed to place {}".format(vm))
 
-        for v in allocated_vms:
-            if v in vms:
-                vms.remove(v)
+        for vm in allocated_vms:
+            if vm in vms:
+                vms.remove(vm)
 
         if allocations == 0:
             break
@@ -142,13 +139,17 @@ def pack_size(orig_nodes, orig_vms, key='area'):
 # a slightly less naive packing routine that only allocates "size",
 # looping over all nodes at once, so long as there is capacity in
 # any node.
-def pack_size_rr(nodes, vms):
+def pack_size_rr(orig_nodes, vms):
     log.info("Packing by size, RR")
-    return
+    nodes = orig_nodes.copy()
+    allocated_vms = vms.copy()
+    return nodes
 
 # Try to allocate VMs to nodes based on similarities of node
 # to hypervisors, based on dot-products of the (normalized)
 # dimensions of the nodes and VMs.
-def pack_size_df(nodes,vms):
+def pack_size_df(orig_nodes,vms):
     log.info("Packing by DF")
+    nodes = orig_nodes.copy()
+    allocated_vms = vms.copy()
     return
