@@ -55,16 +55,21 @@ class graphics:
             self.image_setup(node, w, h, mem_x, cpu_y)
 
 
+            # Loop over all of the VMs that have been allocated to this node.
             for vm in node.allocated_vms:
 
-                # Note:  we cannot use "vm.node", since that's the "old" placement, not the new packed one one
+                # Note:  we cannot use "vm.node" to get the name of the node we are dealing with,
+                # since that's the "old" placement, not the new packed one one
 
+                # Old bottom-right corners become new top-left corners
                 ox = self.image[node.name]['px']
                 oy = self.image[node.name]['py']
 
+                # New bottom-right corners are the px_per_metric * the_metrics
                 self.image[node.name]['px'] += vm.maxmem_gb * self.px_per_mem_gb
                 self.image[node.name]['py'] += vm.maxcpu   * self.px_per_cpu
 
+                # update shorthand variables.
                 px = self.image[node.name]['px']
                 py = self.image[node.name]['py']
 
