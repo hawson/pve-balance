@@ -30,10 +30,6 @@ class graphics:
         # One image per node
         self.image = {}
 
-        self.drawings = {}
-        self.filenames = {}
-        self.vm_map = {}
-
         self.px_per_mem_gb = width / self.x_max
         self.px_per_cpu  = height / self.y_max
 
