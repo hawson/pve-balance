@@ -117,13 +117,15 @@ def pack_size(orig_nodes, orig_vms, key='area'):
             if vm in vms:
                 vms.remove(vm)
 
+        # if nothing was allocated, we're done, and break out of the
+        # outermost while loop
         if allocations == 0:
             break
 
     if vms:
-        log.error("Failed to place several VM! {}".format(list(map(str, vms))))
+        log.error("Failed to place {}  VMs! {}".format(len(vms), list(map(str, vms))))
     else:
-        log.info("Successfully packed all VMs")
+        log.info("Successfully packed all {} VMs".format(len(orig_vms)))
 
 
     # Print vms by node
