@@ -52,26 +52,7 @@ class graphics:
             self.log.info("  Thresholds at mem:({}-{})={} cpu:({}-{})={}".format(w,mem_x,w-mem_x, h,cpu_y,h-cpu_y))
             self.log.info("1xCPU={} 1xMemGB={}".format(self.px_per_cpu, self.px_per_mem_gb))
 
-            # Create a new image
-            self.image[node.name] = {
-                'img': Image.new('RGB', (w, h), (255,255,255)),
-                'filename': '{}.png'.format(node.name),
-                'px': 0,
-                'py': 0,
-            }
-
-            # Make a drawing canvas
-            self.image[node.name]['draw'] = ImageDraw.Draw(self.image[node.name]['img'])
-
-            # minimum lines
-            self.image[node.name]['draw'].line((0,h-cpu_y, w,h-cpu_y), fill='#a00')  # min CPU line
-            self.image[node.name]['draw'].line((w-mem_x,0, w-mem_x,h), fill='#00a')  # min MEM line
-
-            # labels for minimum lines
-            self.image[node.name]['draw'].text((int(w/2), h-cpu_y), "CPU", align="center", directon='ttb', fill=(0,0,0,255))
-            self.image[node.name]['draw'].text((w-mem_x, int(h/2)), "MEM", align="center", directon='ltr', fill=(0,0,0,255))
-
-            self.log.debug("{}: {}x{}".format(self.image[node.name]['filename'], w, h ))
+            self.image_setup(node, w, h, mem_x, cpu_y)
 
 
             for vm in node.allocated_vms:
@@ -90,12 +71,74 @@ class graphics:
                 self.log.debug("Drawing {} on {} ({}x{})+({}x{})".format(vm.name, node.name, ox,oy, px, py))
                 self.log.debug("        {} area={} area_perc={:.3f} score={}".format(vm.name, vm.area(), vm.area_perc(), vm.score()))
 
-                self.image[node.name]['draw'].rectangle(
-                    [(ox, oy), (px, py)], 
-                    outline=(0,0,0),
-                    fill=None
-                    )
-                self.image[node.name]['draw'].text( (ox+2,oy+1), vm.name, fill=(0,0,0,255))
+                # Draw a box for the VM In question, and label it.
+                self.draw_vm(node.name, vm.name, ox, oy, px, py)
+
+
+    def draw_vm(self, node_name, vm_name, ox, oy, px, py):
+        self.image[node_name]['draw'].rectangle(
+            [(ox, oy), (px, py)], 
+            outline=(0,0,0),
+            fill=None
+        )
+        self.image[node_name]['draw'].text( (ox+2,oy+1), vm_name, fill=(0,0,0,255))
+
+
+
+    def image_setup(self, node, w, h, mem_x, cpu_y, cpu_ticks = 5, mem_gb_ticks = 5):
+        '''Basic image creation and setup.  Place small and medium tick marks periodically.'''
+
+        # Create a new image
+        self.image[node.name] = {
+            'img': Image.new('RGB', (w, h), (255,255,255)),
+            'filename': '{}.png'.format(node.name),
+            'px': 0,
+            'py': 0,
+            'draw': None,
+        }
+
+        # Make a drawing canvas
+        self.image[node.name]['draw'] = ImageDraw.Draw(self.image[node.name]['img'])
+
+        # tick marks
+        base_tick_length_px = 10
+
+        gb = 0
+        while gb < node.maxmem_gb:
+            x = gb * self.px_per_mem_gb
+            tick_len = base_tick_length_px
+            if 0 == (gb % mem_gb_ticks):
+                tick_len *= 2
+            self.image[node.name]['draw'].line((x,0, x, tick_len), fill='#00a')  # MEM tickmark
+            self.image[node.name]['draw'].line((x,h, x, h-tick_len), fill='#00a')  # MEM tickmark
+            gb += 1
+
+        cpu = 0
+        while cpu < node.maxcpu:
+            y = cpu * self.px_per_cpu
+            tick_len = base_tick_length_px
+            if 0 == (cpu % cpu_ticks):
+                tick_len *= 2
+            self.image[node.name]['draw'].line((0,y, tick_len, y), fill='#00a')  # MEM tickmark
+            self.image[node.name]['draw'].line((w,y, w-tick_len, y), fill='#00a')  # MEM tickmark
+            cpu += 1
+
+
+
+
+        # minimum lines
+        self.image[node.name]['draw'].line((0,h-cpu_y, w,h-cpu_y), fill='#a00')  # min CPU line
+        self.image[node.name]['draw'].line((0,h-cpu_y+1, w,h-cpu_y+1), fill='#a00')  # min CPU line
+
+        self.image[node.name]['draw'].line((w-mem_x,0, w-mem_x,h), fill='#00a')  # min MEM line
+        self.image[node.name]['draw'].line((w-mem_x+1,0, w-mem_x+1,h), fill='#00a')  # min MEM line
+
+        # labels for minimum lines
+        self.image[node.name]['draw'].text((int(w/2), h-cpu_y+1), "Min CPU Limit", align="center", directon='ttb', fill=(0,0,0,255))
+        self.image[node.name]['draw'].text((w-mem_x+3, int(h/2)), "Min MEM", align="left", directon='ltr', fill=(0,0,0,255))
+        self.image[node.name]['draw'].text((w-mem_x+3, int(h/2)+10), "Limit", align="left", directon='ltr', fill=(0,0,0,255))
+
+        self.log.debug("{}: {}x{}".format(self.image[node.name]['filename'], w, h ))
 
 
 
