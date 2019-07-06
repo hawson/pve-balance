@@ -103,6 +103,7 @@ def pack_size(orig_nodes, orig_vms, key='area'):
             allocated = False
             for node in nodes:
                 log.info("  on {}:".format(node))
+
                 if node.allocate(vm):
                     log.info("  Placed {} on {}".format(vm, node))
                     allocations += 1
@@ -135,7 +136,7 @@ def pack_size(orig_nodes, orig_vms, key='area'):
             print('  {}'.format(vm))
 
 
-    return nodes
+    return nodes, len(allocated_vms), len(vms)
 
 
 # a slightly less naive packing routine that only allocates "size",

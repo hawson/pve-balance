@@ -107,12 +107,19 @@ for tvm in temp_vms:
 print("Packing....")
 
 
-packed_nodes = packing.pack_size(nodes, temp_vms)
+packed_nodes, packed_count, unpacked_count = packing.pack_size(nodes, temp_vms)
 #packing.pack_size_rr(nodes, vms)
 #packing.pack_size_df(nodes, vms)
 
 g=graphics.graphics(packed_nodes, vms, height=600, width=800)
 g.save()
+
+
+
+
+print("Packed {} nodes.".format(packed_count))
+print("Did not pack {} nodes.".format(unpacked_count))
+
 
 
 #print(P.get_nodes())
