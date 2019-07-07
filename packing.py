@@ -146,7 +146,8 @@ def pack_size_rr(orig_nodes, vms):
     log.info("Packing by size, RR")
     nodes = orig_nodes.copy()
     allocated_vms = vms.copy()
-    return nodes
+
+    return nodes, len(allocated_vms), len(vms)
 
 # Try to allocate VMs to nodes based on similarities of node
 # to hypervisors, based on dot-products of the (normalized)
@@ -155,4 +156,6 @@ def pack_size_df(orig_nodes,vms):
     log.info("Packing by DF")
     nodes = orig_nodes.copy()
     allocated_vms = vms.copy()
-    return
+
+
+    return nodes, len(allocated_vms), len(vms)

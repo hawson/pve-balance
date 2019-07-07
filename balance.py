@@ -117,8 +117,7 @@ g.save()
 
 
 
-print("Packed {} nodes.".format(packed_count))
-print("Did not pack {} nodes.".format(unpacked_count))
+print("Packed {}/{} nodes. ({:.0f}%)".format(packed_count, unpacked_count+packed_count, 100*packed_count/(packed_count+unpacked_count)))
 
 
 
