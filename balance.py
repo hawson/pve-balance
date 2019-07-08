@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import json
+import copy
 
 import logging
 
@@ -97,24 +98,32 @@ for node in sorted(nodes):
             print('  {}'.format(tvm.name))
 
 
-temp_vms = vms.copy()
+temp_nodes = copy.deepcopy(nodes)
+temp_vms = copy.deepcopy(vms)
 temp_vms.sort(key=lambda x: x.area())
 
 for tvm in temp_vms:
-    print('{:>25}: {}'.format(tvm.name, tvm.area_perc()))
+    print('{:>25}: {:>.4f} {:>.4f}'.format(tvm.name, tvm.area_perc(), tvm.area()))
 
 
 print("Packing....")
 
 
-packed_nodes, packed_count, unpacked_count = packing.pack_size(nodes, temp_vms)
-#packing.pack_size_rr(nodes, vms)
-#packing.pack_size_df(nodes, vms)
+packed_nodes, packed_count, unpacked_count = packing.pack_size(temp_nodes, temp_vms, key='area')
 
-g=graphics.graphics(packed_nodes, vms, height=600, width=800)
+g=graphics.graphics(packed_nodes, temp_vms, height=600, width=800, filename="packed")
 g.save()
 
 
+print("Packed {}/{} nodes. ({:.0f}%)".format(packed_count, unpacked_count+packed_count, 100*packed_count/(packed_count+unpacked_count)))
+
+
+temp_nodes = copy.deepcopy(nodes)
+temp_vms = copy.deepcopy(vms)
+packed_nodes, packed_count, unpacked_count = packing.pack_size_rr(temp_nodes, temp_vms, key='area')
+
+g=graphics.graphics(packed_nodes, temp_vms, height=600, width=800, filename="packed_rr")
+g.save()
 
 
 print("Packed {}/{} nodes. ({:.0f}%)".format(packed_count, unpacked_count+packed_count, 100*packed_count/(packed_count+unpacked_count)))
