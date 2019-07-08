@@ -90,13 +90,27 @@ class graphics:
 
 
 
-    def image_setup(self, node, w, h, mem_x, cpu_y, cpu_ticks = 5, mem_gb_ticks = 5):
+    def image_setup(self, node, w, h, mem_x, cpu_y, cpu_ticks = 5, mem_gb_ticks = 5, filename = None):
         '''Basic image creation and setup.  Place small and medium tick marks periodically.'''
 
+        import re
+
+        filename = str(filename)
+
+        if re.match('^[a-z0-9_.-]+$', filename):
+            if re.match('\.png$', filename):
+                fname = filename
+            else:
+                fname = '{}.png'.format(filename)
+
+        else:
+            fname = '{}.png'.format(node.name)
+
+        filename = node.name
         # Create a new image
         self.image[node.name] = {
             'img': Image.new('RGB', (w, h), (255,255,255)),
-            'filename': '{}.png'.format(node.name),
+            'filename': fname,
             'px': 0,
             'py': 0,
             'draw': None,
