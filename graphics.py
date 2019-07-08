@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 class graphics:
 
-    def __init__(self,  nodes, vms, height=None, width=None):
+    def __init__(self,  nodes, vms, height=None, width=None, filename=None):
 
         self.log = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class graphics:
             self.log.info("  Thresholds at mem:({}-{})={} cpu:({}-{})={}".format(w,mem_x,w-mem_x, h,cpu_y,h-cpu_y))
             self.log.info("1xCPU={} 1xMemGB={}".format(self.px_per_cpu, self.px_per_mem_gb))
 
-            self.image_setup(node, w, h, mem_x, cpu_y)
+            self.image_setup(node, w, h, mem_x, cpu_y, filename=filename)
 
 
             # Loop over all of the VMs that have been allocated to this node.
@@ -99,9 +99,9 @@ class graphics:
 
         if re.match('^[a-z0-9_.-]+$', filename):
             if re.match('\.png$', filename):
-                fname = filename
+                fname = '{}-{}'.format(node.name, filename)
             else:
-                fname = '{}.png'.format(filename)
+                fname = '{}-{}.png'.format(node.name, filename)
 
         else:
             fname = '{}.png'.format(node.name)
