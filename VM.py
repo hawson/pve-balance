@@ -5,6 +5,7 @@ import logging
 
 import functools
 
+#allow for sorting objects via arbitrary means.
 @functools.total_ordering
 class VM:
 
@@ -67,8 +68,10 @@ class VM:
     def area_perc(self):
         return float(self.mem_gb) * self.cpu
 
+
     def area(self):
         return float(self.maxmem_gb) * self.maxcpu
+
 
     def score(self, biased=True, full=False):
 
