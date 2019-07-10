@@ -121,6 +121,7 @@ class Node:
 
         if self.has_space(vm, quiet=False):
             self.freemem -= vm.maxmem
+            self.freemem_gb = self.freemem/2**30
             self.freecpu -= vm.maxcpu
             self.allocated_vms.append(vm)
             return True
