@@ -117,6 +117,8 @@ g.save()
 
 print("Packed {}/{} nodes. ({:.0f}%)".format(packed_count, unpacked_count+packed_count, 100*packed_count/(packed_count+unpacked_count)))
 
+for node in packed_nodes:
+    node.efficency()
 
 temp_nodes = copy.deepcopy(nodes)
 temp_vms = copy.deepcopy(vms)
@@ -129,10 +131,12 @@ g.save()
 print("Packed {}/{} nodes. ({:.0f}%)".format(packed_count, unpacked_count+packed_count, 100*packed_count/(packed_count+unpacked_count)))
 
 
+for node in packed_nodes:
+    node.efficency()
 
-#print(P.get_nodes())
-#print(P.get_vms())
 
+
+#######################################################################
 
 # 'pve1': {
 #    'cpu': 0.00900691538434386,

@@ -181,3 +181,29 @@ class Node:
                 scores['bias'],
             )
         return '{:>.3f}'.format(score)
+
+
+    def efficency(self):
+
+        import balance_math
+
+        # vector describing an empty node, based on this node's resources
+        node_max_vector = [ self.maxmem_gb, self.maxcpu ]
+        norm_hv = balance_math.norm(node_max_vector)
+        len_hv = balance_math.length(node_max_vector)
+
+        # vector describing the resources consumed by all of the VMs on this node
+        node_vm_vector = [ self.maxmem_gb - self.freemem_gb, self.maxcpu-self.freecpu ]
+        norm_vm = balance_math.norm(node_vm_vector)
+        len_vm = balance_math.length(node_vm_vector)
+
+        efficiency = balance_math.length(node_vm_vector)/balance_math.length(node_max_vector)
+
+        logging.info("HVS({}): {:>.3f} {} {}".format(self.name, len_hv, node_max_vector, norm_hv))
+        logging.info("VMS({}): {:>.3f} {} {}".format(self.name, len_vm, node_vm_vector, norm_vm))
+        logging.info("DOT({}): {}".format(self.name, balance_math.dot(node_max_vector, node_vm_vector)))
+        logging.info("NRM({}): {}".format(self.name, balance_math.dot(node_max_vector, node_vm_vector)/balance_math.length(node_max_vector)))
+        logging.info("NR2({}): {}".format(self.name, balance_math.length(node_vm_vector)/balance_math.length(node_max_vector)))
+        logging.info("DLT({}): {}".format(self.name, balance_math.diff( node_max_vector, node_vm_vector) ))
+        return efficiency
+
