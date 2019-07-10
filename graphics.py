@@ -126,20 +126,30 @@ class graphics:
         while gb < node.maxmem_gb:
             x = gb * self.px_per_mem_gb
             tick_len = base_tick_length_px
-            if 0 == (gb % mem_gb_ticks):
+
+            if 0 == (gb % (mem_gb_ticks * 2)):
+                tick_len *= 3
+            elif 0 == (gb % mem_gb_ticks):
                 tick_len *= 2
+
             self.image[node.name]['draw'].line((x,0, x, tick_len), fill='#00a')  # MEM tickmark
             self.image[node.name]['draw'].line((x,h, x, h-tick_len), fill='#00a')  # MEM tickmark
+
             gb += 1
 
         cpu = 0
         while cpu < node.maxcpu:
             y = cpu * self.px_per_cpu
             tick_len = base_tick_length_px
-            if 0 == (cpu % cpu_ticks):
+
+            if 0 == (cpu % (cpu_ticks * 2)):
+                tick_len *= 3
+            elif 0 == (cpu % cpu_ticks):
                 tick_len *= 2
-            self.image[node.name]['draw'].line((0,y, tick_len, y), fill='#00a')  # MEM tickmark
-            self.image[node.name]['draw'].line((w,y, w-tick_len, y), fill='#00a')  # MEM tickmark
+
+            self.image[node.name]['draw'].line((0,y, tick_len, y), fill='#00a')  # CPU tickmark
+            self.image[node.name]['draw'].line((w,y, w-tick_len, y), fill='#00a')  # CPU tickmark
+
             cpu += 1
 
 
