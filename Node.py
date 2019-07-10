@@ -43,6 +43,7 @@ class Node:
 
         self.maxmem_gb = self.maxmem/2**30
         self.mem_gb = self.mem/2**30
+        self.freemem_gb = self.freemem/2**30
 
         self.minfreecpu = minfreecpu
         self.minfreemem = minfreemem_perc * self.maxmem
