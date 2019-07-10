@@ -41,7 +41,7 @@ class Node:
         self.bias = bias
 
         self.freecpu = self.maxcpu
-        self.freemem = self.maxmem - self.mem
+        self.freemem = self.maxmem
 
         self.maxmem_gb = self.maxmem/2**30
         self.mem_gb = self.mem/2**30
