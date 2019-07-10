@@ -7,6 +7,8 @@ utilization of those resources (CPU, RAM, disk, and network).'''
 import logging
 import functools
 
+
+# include this so nodes can be "sorted" as objects
 @functools.total_ordering
 class Node:
     '''Main node class.'''
