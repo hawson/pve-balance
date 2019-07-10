@@ -42,12 +42,14 @@ transitions. :)'''
 # iteration of placement.
 
 import logging
+import copy
 
 log = logging.getLogger(__name__)
 
 def pack_setup(orig_nodes, orig_vms, vm_sort_key='area'):
 
-    nodes = sorted(orig_nodes.copy(), key=lambda n: n.area(), reverse=True)
+    nodes = copy.deepcopy(orig_nodes)
+    nodes.sort(key=lambda n: n.area(), reverse=True)
     logging.debug("Sorted node order (by area): {}".format(list(map(str,nodes))))
 
     for node in nodes:
