@@ -199,12 +199,13 @@ class Node:
         len_vm = balance_math.length(node_vm_vector)
 
         efficiency = balance_math.length(node_vm_vector)/balance_math.length(node_max_vector)
+        delta = balance_math.diff( node_max_vector, node_vm_vector)
 
         logging.info("HVS({}): {:>.3f} {} {}".format(self.name, len_hv, node_max_vector, norm_hv))
         logging.info("VMS({}): {:>.3f} {} {}".format(self.name, len_vm, node_vm_vector, norm_vm))
         logging.info("DOT({}): {}".format(self.name, balance_math.dot(node_max_vector, node_vm_vector)))
         logging.info("NRM({}): {}".format(self.name, balance_math.dot(node_max_vector, node_vm_vector)/balance_math.length(node_max_vector)))
         logging.info("NR2({}): {}".format(self.name, balance_math.length(node_vm_vector)/balance_math.length(node_max_vector)))
-        logging.info("DLT({}): {}".format(self.name, balance_math.diff( node_max_vector, node_vm_vector) ))
+        logging.info("DLT({}): {:.3f} {}".format(self.name, balance_math.length(delta), delta ))
         return efficiency
 
