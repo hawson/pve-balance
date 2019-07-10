@@ -120,7 +120,8 @@ print("Packed {}/{} nodes. ({:.0f}%)".format(packed_count, unpacked_count+packed
 for node in packed_nodes:
     node.efficency()
 
-temp_nodes = copy.deepcopy(nodes)
+#========================================================================
+#temp_nodes = copy.deepcopy(nodes)
 temp_vms = copy.deepcopy(vms)
 packed_nodes, packed_count, unpacked_count = packing.pack_size_rr(temp_nodes, temp_vms, key='area')
 
