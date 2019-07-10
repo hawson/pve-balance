@@ -2,11 +2,21 @@
 # mostly on vectors of arbitrary length
 '''Simple implementaion of some basic math/vector routines'''
 from math import sqrt
-from operator import mul
+from operator import mul,sub
 from functools import reduce
 
+def add(A,B):
+    '''compute and return new vector (a list) that is A-B)'''
+    return list(map(sum, zip(A,B)))
+
+def diff(A,B):
+    '''compute and return new vector (a list) that is A-B)'''
+    return list(map(sub, A,B))
+
+
+
 def dot(a, b):
-    '''dot product of two vector of arbitrary, but equal number of elements'''
+    '''dot product of two vector of arbitrary but equal number of elements'''
     return sum(map(mul, a, b))
 
 
