@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 class graphics:
 
-    def __init__(self,  nodes, vms, height=None, width=None, filename=None):
+    def __init__(self, nodes, height=None, width=None, filename=None):
 
         self.log = logging.getLogger(__name__)
 
