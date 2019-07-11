@@ -1,8 +1,7 @@
 '''PICTUERS!'''
 
-import sys
 import logging
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 class graphics:
 
@@ -18,8 +17,8 @@ class graphics:
         # across all nodes, so that they can be scaled to the requested
         # image dimensions.
 
-        xs = [getattr(n,'maxmem_gb') for n in nodes ]
-        ys = [getattr(n,'maxcpu') for n in nodes ]
+        xs = [getattr(n, 'maxmem_gb') for n in nodes ]
+        ys = [getattr(n, 'maxcpu') for n in nodes ]
 
         self.x_max = max(xs)
         self.y_max = max(ys)
@@ -30,8 +29,8 @@ class graphics:
         # One image per node
         self.image = {}
 
-        self.px_per_mem_gb = width / self.x_max
-        self.px_per_cpu  = height / self.y_max
+        self.px_per_mem_gb = width  / self.x_max
+        self.px_per_cpu    = height / self.y_max
 
         self.log.debug("MaximumX: {:>.1f}/{:>.1f}px MaximumY: {}/{:>.1f}px".format(self.x_max, self.px_per_mem_gb, self.y_max, self.px_per_cpu))
 
@@ -48,8 +47,8 @@ class graphics:
             #mem_x = int(node.minfreemem/2**30/node.maxmem_gb * width)
 
             self.log.info("Scaling Mem({:.1f})/CPU({}) -> {}x{} (of {}x{})".format(
-                node.maxmem_gb, node.maxcpu, w,h, width, height))
-            self.log.info("  Thresholds at mem:({}-{})={} cpu:({}-{})={}".format(w,mem_x,w-mem_x, h,cpu_y,h-cpu_y))
+                node.maxmem_gb, node.maxcpu, w, h, width, height))
+            self.log.info("  Thresholds at mem:({}-{})={} cpu:({}-{})={}".format(w, mem_x, w-mem_x, h,cpu_y, h-cpu_y))
             self.log.info("1xCPU={} 1xMemGB={}".format(self.px_per_cpu, self.px_per_mem_gb))
 
             self.image_setup(node, w, h, mem_x, cpu_y, filename=filename)
@@ -73,7 +72,7 @@ class graphics:
                 px = self.image[node.name]['px']
                 py = self.image[node.name]['py']
 
-                self.log.debug("Drawing {} on {} ({}x{})+({}x{})".format(vm.name, node.name, ox,oy, px, py))
+                self.log.debug("Drawing {} on {} ({}x{})+({}x{})".format(vm.name, node.name, ox, oy, px, py))
                 self.log.debug("        {} area={} area_perc={:.3f} score={}".format(vm.name, vm.area(), vm.area_perc(), vm.score()))
 
                 # Draw a box for the VM In question, and label it.
@@ -82,15 +81,15 @@ class graphics:
 
     def draw_vm(self, node_name, vm_name, ox, oy, px, py):
         self.image[node_name]['draw'].rectangle(
-            [(ox, oy), (px, py)], 
+            [(ox, oy), (px, py)],
             outline=(0,0,0),
             fill=None
         )
-        self.image[node_name]['draw'].text( (ox+2,oy+1), vm_name, fill=(0,0,0,255))
+        self.image[node_name]['draw'].text((ox+2, oy+1), vm_name, fill=(0,0,0,255))
 
 
 
-    def image_setup(self, node, w, h, mem_x, cpu_y, cpu_ticks = 5, mem_gb_ticks = 5, filename = None):
+    def image_setup(self, node, w, h, mem_x, cpu_y, cpu_ticks=5, mem_gb_ticks=5, filename=None):
         '''Basic image creation and setup.  Place small and medium tick marks periodically.'''
 
         import re
@@ -98,7 +97,7 @@ class graphics:
         filename = str(filename)
 
         if re.match('^[a-z0-9_.-]+$', filename):
-            if re.match('\.png$', filename):
+            if re.match(r'\.png$', filename):
                 fname = '{}-{}'.format(node.name, filename)
             else:
                 fname = '{}-{}.png'.format(node.name, filename)
@@ -132,8 +131,8 @@ class graphics:
             elif 0 == (gb % mem_gb_ticks):
                 tick_len *= 2
 
-            self.image[node.name]['draw'].line((x,0, x, tick_len), fill='#00a')  # MEM tickmark
-            self.image[node.name]['draw'].line((x,h, x, h-tick_len), fill='#00a')  # MEM tickmark
+            self.image[node.name]['draw'].line((x, 0, x, tick_len), fill='#00a')   # MEM tickmark, top
+            self.image[node.name]['draw'].line((x, h, x, h-tick_len), fill='#00a') # MEM tickmark, bottom
 
             gb += 1
 
@@ -147,8 +146,8 @@ class graphics:
             elif 0 == (cpu % cpu_ticks):
                 tick_len *= 2
 
-            self.image[node.name]['draw'].line((0,y, tick_len, y), fill='#00a')  # CPU tickmark
-            self.image[node.name]['draw'].line((w,y, w-tick_len, y), fill='#00a')  # CPU tickmark
+            self.image[node.name]['draw'].line((0,y, tick_len, y), fill='#00a')   # CPU tickmark, left
+            self.image[node.name]['draw'].line((w,y, w-tick_len, y), fill='#00a') # CPU tickmark, right
 
             cpu += 1
 
@@ -156,10 +155,10 @@ class graphics:
 
 
         # minimum lines
-        self.image[node.name]['draw'].line((0,h-cpu_y, w,h-cpu_y), fill='#a00')  # min CPU line
+        self.image[node.name]['draw'].line((0,h-cpu_y,   w,h-cpu_y), fill='#a00')  # min CPU line
         self.image[node.name]['draw'].line((0,h-cpu_y+1, w,h-cpu_y+1), fill='#a00')  # min CPU line
 
-        self.image[node.name]['draw'].line((w-mem_x,0, w-mem_x,h), fill='#00a')  # min MEM line
+        self.image[node.name]['draw'].line((w-mem_x,0,   w-mem_x,h), fill='#00a')  # min MEM line
         self.image[node.name]['draw'].line((w-mem_x+1,0, w-mem_x+1,h), fill='#00a')  # min MEM line
 
         # labels for minimum lines
@@ -167,7 +166,7 @@ class graphics:
         self.image[node.name]['draw'].text((w-mem_x+3, int(h/2)), "Min MEM", align="left", directon='ltr', fill=(0,0,0,255))
         self.image[node.name]['draw'].text((w-mem_x+3, int(h/2)+10), "Limit", align="left", directon='ltr', fill=(0,0,0,255))
 
-        self.log.debug("{}: {}x{}".format(self.image[node.name]['filename'], w, h ))
+        self.log.debug("{}: {}x{}".format(self.image[node.name]['filename'], w, h))
 
 
 
@@ -177,10 +176,3 @@ class graphics:
         for node in self.image:
             fname = self.image[node]['filename']
             self.image[node]['img'].save(fname, 'PNG')
-
-
-if __name__ == "__main__":
-    g=graphics('output.png', None, None, height=255, width=255)
-    g.draw.line((0,0)+(200,250), fill=0)
-
-    g.image.save('output.png', "PNG")
