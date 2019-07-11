@@ -29,7 +29,7 @@ class PVE():
             self.proxmox = proxmoxer.ProxmoxAPI(host, user=u, password=pw)
 
         except proxmoxer.backends.https.AuthenticationError as e:
-            self.log.error("Authention error: %s" % str(e))
+            self.log.error("Authention error: {}".format(e))
             sys.exit(1)
 
         except Exception as e:
@@ -37,8 +37,6 @@ class PVE():
             sys.exit(1)
             #log.error("Authention error: %s" % str(e))
 
-
-        return
 
 
     def get_nodes(self, full=False):
@@ -58,8 +56,8 @@ class PVE():
 
         if full:
             return self.nodes
-        else:
-            return list(map(lambda n: n['node'], self.nodes))
+
+        return list(map(lambda n: n['node'], self.nodes))
 
 
     def get_vms(self, full=False, filter_node=None):

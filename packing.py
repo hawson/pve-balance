@@ -55,9 +55,8 @@ def pack_setup(orig_nodes, orig_vms, vm_sort_key='area'):
     for node in nodes:
         node.allocated_vms = []
 
-    method = None
     try:
-        sort_method = getattr(orig_vms[0], vm_sort_key)
+        getattr(orig_vms[0], vm_sort_key)
     except AttributeError:
         raise NotImplementedError("The vm class does not have {} a method".format(vm_sort_key))
 
@@ -148,7 +147,7 @@ def pack_size(orig_nodes, orig_vms, key='area'):
 def pack_size_rr(orig_nodes, orig_vms, key='area'):
     '''a slightly less naive packing routine that only allocates nodes,
     but rotates round-robin style over the nodes to attempt a more
-    balanced allocation.'''  
+    balanced allocation.'''
 
     log.info("Packing by size, RR")
 
@@ -165,7 +164,7 @@ def pack_size_rr(orig_nodes, orig_vms, key='area'):
             log.info("Attempt placing {}({:>.1f}GB,{} cpu) = {}".format(vm, vm.maxmem/2**30, vm.maxcpu, vm.area()))
             allocated = False
 
-            for i in range(nodes_avail):
+            for i in range(nodes_avail):    # pylint: disable=unused-variable
 
                 node_index += 1
                 node = nodes[node_index % nodes_avail]
@@ -204,37 +203,20 @@ def pack_size_rr(orig_nodes, orig_vms, key='area'):
             print('  {}'.format(vm))
 
 
-
-
-        
-
-            
-
     return nodes, len(allocated_vms), len(vms)
+
+
+
 
 # Try to allocate VMs to nodes based on similarities of node
 # to hypervisors, based on dot-products of the (normalized)
 # dimensions of the nodes and VMs.
-def pack_size_df(orig_nodes,vms):
-    log.info("Packing by DF")
+def pack_size_df(orig_nodes, orig_vms, key='area'):
+    '''Pack by dot product comparison'''
 
-    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key)
-    allocated_vms = []
+    log.info("Packing by dot-product in closet.")
 
-    while vms:
-
-        allocations = 0
-
-
-    return nodes, len(allocated_vms), len(vms)
-
-
-def pack_skeleton(orig_nodes, orig_vms, key='area'):
-    '''Skeleton text about the packing routine.'''
-
-    log.info("Packing skeletons in closet.")
-
-    # Basic sorting and setup 
+    # Basic sorting and setup
     nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key)
 
     # initially empty list of VMs that have been placed somewhere.
@@ -244,7 +226,39 @@ def pack_skeleton(orig_nodes, orig_vms, key='area'):
     # Loop so long as there are vms to process
     while vms:
 
-        # If allocations is zero at the end of this pass, 
+        # If allocations is zero at the end of this pass,
+        # we've done nothing, and break out.
+        allocations = 0
+
+        # Sequentially loop over all VMs in the list.  This list
+        # was sorted in pack_setup() above, so no need to do it again.
+        for vm in vms:
+            log.info("Attempt placing {}({:>.1f}GB,{} cpu) = {}".format(vm, vm.maxmem/2**30, vm.maxcpu, vm.area()))
+            # Magic here
+
+            for node in nodes:
+                log.info("  on {}:".format(node))
+                # Magic here
+
+    return nodes, len(allocated_vms), len(vms)
+
+
+def pack_skeleton(orig_nodes, orig_vms, key='area'):
+    '''Skeleton text about the packing routine.'''
+
+    log.info("Packing skeletons in closet.")
+
+    # Basic sorting and setup
+    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key)
+
+    # initially empty list of VMs that have been placed somewhere.
+    # if it isn't in this list, it wasn't placed.
+    allocated_vms = []
+
+    # Loop so long as there are vms to process
+    while vms:
+
+        # If allocations is zero at the end of this pass,
         # we've done nothing, and break out.
         allocations = 0
 
@@ -260,5 +274,9 @@ def pack_skeleton(orig_nodes, orig_vms, key='area'):
 
             pass
 
+        # if nothing was allocated, we're done, and break out of the
+        # outermost while loop
+        if allocations == 0:
+            break
 
-    return None, None
+    return nodes, len(allocated_vms), len(vms)

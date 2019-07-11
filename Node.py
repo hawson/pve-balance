@@ -28,7 +28,7 @@ class Node:
 
 
     def __init__(self, data=None, bias=0.0, minfreecpu=1, minfreemem_perc=0.10):
-        '''Intialize based on the JSON blob handed to us, plus several 
+        '''Intialize based on the JSON blob handed to us, plus several
         additional values either passed in (min free specs, bias), or computed.'''
         if data:
             for key, value in data.items():
@@ -211,4 +211,3 @@ class Node:
         logging.info("NR2({}): {}".format(self.name, balance_math.length(node_vm_vector)/balance_math.length(node_max_vector)))
         logging.info("DLT({}): {:.3f} {}".format(self.name, balance_math.length(delta), delta ))
         return efficiency
-

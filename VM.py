@@ -75,8 +75,6 @@ class VM:
 
     def score(self, biased=True, full=False):
 
-        vm_name = self.name
-
         score = 0.0
 
         scores = {
