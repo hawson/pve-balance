@@ -195,8 +195,11 @@ class Node:
 
         # vector describing the resources consumed by all of the VMs on this node
         node_vm_vector = [ self.maxmem_gb - self.freemem_gb, self.maxcpu-self.freecpu ]
-        norm_vm = balance_math.norm(node_vm_vector)
         len_vm = balance_math.length(node_vm_vector)
+        if len_vm > 0:
+            norm_vm = balance_math.norm(node_vm_vector)
+        else:
+            norm_vm = [0,0]
 
         efficiency = balance_math.length(node_vm_vector)/balance_math.length(node_max_vector)
         delta = balance_math.diff( node_max_vector, node_vm_vector)
