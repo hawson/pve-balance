@@ -185,7 +185,7 @@ class Node:
         return '{:>.3f}'.format(score)
 
 
-    def efficency(self):
+    def efficency(self, free=False):
 
         import balance_math
 
@@ -208,8 +208,8 @@ class Node:
 
         delta = balance_math.diff( node_max_vector, node_vm_vector)
 
-
         efficiency = len_vm / len_hv
+        free_efficiency = len_vm / len_hf
 
 
         logging.info("HVVector({}):          {:>.3f} [{:>.3f} {:>.3f}] [{:>.3f} {:>.3f}]".format(self.name, len_hv, *node_max_vector, *norm_hv))
@@ -217,6 +217,9 @@ class Node:
         logging.info("VMVector({}):          {:>.3f} [{:>.3f} {:>.3f}] [{:>.3f} {:>.3f}]".format(self.name, len_vm, *node_vm_vector, *norm_vm))
         logging.info("HVV*VMV({}):           {:>.3f}".format(self.name, balance_math.dot(node_max_vector, node_vm_vector)))
         logging.info("HVV*VMV/len(HVV)({}):  {:>.3f}".format(self.name, balance_math.dot(node_max_vector, node_vm_vector)/len_hv))
-        logging.info("len(VMV)/len(HVV)({}): {:>.1f}% ({:>.2f}% of {:>.3f})".format(self.name, 100*efficiency, 100*len_vm/len_hf, len_hf))
+        logging.info("len(VMV)/len(HVV)({}): {:>.1f}% ({:>.2f}% of {:>.3f})".format(self.name, 100*efficiency, 100*free_efficiency, len_hf))
         logging.info("len(HVV-VMV)({}):      {:.3f} {}".format(self.name, balance_math.length(delta), delta ))
+
+        if free:
+            return free_efficiency
         return efficiency
