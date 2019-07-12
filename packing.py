@@ -46,7 +46,7 @@ import copy
 
 log = logging.getLogger(__name__)
 
-def pack_setup(orig_nodes, orig_vms, vm_sort_key='area'):
+def pack_setup(orig_nodes, orig_vms, vm_sort_key='area', vm_reverse=True):
 
     nodes = copy.deepcopy(orig_nodes)
     nodes.sort(key=lambda n: n.area(), reverse=True)
@@ -63,15 +63,15 @@ def pack_setup(orig_nodes, orig_vms, vm_sort_key='area'):
     log.info("Found method {}".format(vm_sort_key))
 
     vms = orig_vms.copy()
-    vms.sort(key=lambda v: getattr(v, vm_sort_key)(), reverse=True)
+    vms.sort(key=lambda v: getattr(v, vm_sort_key)(), reverse=vm_reverse)
 
-    logging.debug("Sorted VM order (by {}): {}".format(vm_sort_key, list(map(str,vms))))
+    logging.debug("Sorted VM order (by {}, rev:{}): {}".format(vm_sort_key, vm_reverse, list(map(str,vms))))
 
 
     return nodes, vms
 
 
-def pack_size(orig_nodes, orig_vms, key='area'):
+def pack_size(orig_nodes, orig_vms, key='area', vm_reverse=True):
     '''A naive packing routine that only allocates by "size" of
     a VM, filling a single node to capacity, then moving along
     to the next node.  Returns a list of *NEW* nodes with the new packing
@@ -79,7 +79,7 @@ def pack_size(orig_nodes, orig_vms, key='area'):
 
     log.info("Packing by size")
 
-    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key)
+    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse)
 
 #    vm_metrics = {}
 #
@@ -145,14 +145,14 @@ def pack_size(orig_nodes, orig_vms, key='area'):
     return nodes, len(allocated_vms), len(vms)
 
 
-def pack_size_rr(orig_nodes, orig_vms, key='area'):
+def pack_size_rr(orig_nodes, orig_vms, key='area', vm_reverse=True):
     '''a slightly less naive packing routine that only allocates nodes,
     but rotates round-robin style over the nodes to attempt a more
     balanced allocation.'''
 
     log.info("Packing by size, RR")
 
-    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key)
+    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse)
     allocated_vms = []
 
     while vms:
@@ -212,7 +212,7 @@ def pack_size_rr(orig_nodes, orig_vms, key='area'):
 # Try to allocate VMs to nodes based on similarities of node
 # to hypervisors, based on dot-products of the (normalized)
 # dimensions of the nodes and VMs.
-def pack_size_df(orig_nodes, orig_vms, key='area'):
+def pack_size_df(orig_nodes, orig_vms, key='area', vm_reverse=True):
     '''Pack by dot product comparison'''
 
     import balance_math
@@ -220,7 +220,7 @@ def pack_size_df(orig_nodes, orig_vms, key='area'):
     log.info("Packing by dot-product in closet.")
 
     # Basic sorting and setup
-    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key)
+    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse)
 
 
 
@@ -294,7 +294,7 @@ def pack_size_df(orig_nodes, orig_vms, key='area'):
 
 ############################################################################3
 # random packing
-def pack_random(orig_nodes, orig_vms, key='area'):
+def pack_random(orig_nodes, orig_vms, key='area', vm_reverse=True):
     '''Do it randomly, every time'''
 
     import random
@@ -302,7 +302,7 @@ def pack_random(orig_nodes, orig_vms, key='area'):
     log.info("Random packing")
 
     # Basic sorting and setup
-    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key)
+    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse)
 
     # initially empty list of VMs that have been placed somewhere.
     # if it isn't in this list, it wasn't placed.
@@ -351,13 +351,13 @@ def pack_random(orig_nodes, orig_vms, key='area'):
 ############################################################################3
 ############################################################################3
 # boilerplate for other packing methods
-def pack_skeleton(orig_nodes, orig_vms, key='area'):
+def pack_skeleton(orig_nodes, orig_vms, key='area', vm_reverse=True):
     '''Skeleton text about the packing routine.'''
 
     log.info("Packing skeletons in closet.")
 
     # Basic sorting and setup
-    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key)
+    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse)
 
     # initially empty list of VMs that have been placed somewhere.
     # if it isn't in this list, it wasn't placed.
