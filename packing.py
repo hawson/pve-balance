@@ -106,6 +106,7 @@ def pack_size(orig_nodes, orig_vms, key='area'):
             #print(list(map(str,allocated_vms)))
             log.info("Attempt placing {}({:>.1f}GB,{} cpu) = {}".format(vm, vm.maxmem/2**30, vm.maxcpu, vm.area()))
             allocated = False
+
             for node in nodes:
                 log.info("  on {}:".format(node))
 
@@ -221,9 +222,12 @@ def pack_size_df(orig_nodes, orig_vms, key='area'):
     # Basic sorting and setup
     nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key)
 
+
+
     # initially empty list of VMs that have been placed somewhere.
     # if it isn't in this list, it wasn't placed.
     allocated_vms = []
+
 
     # Loop so long as there are vms to process
     while vms:
@@ -288,6 +292,10 @@ def pack_size_df(orig_nodes, orig_vms, key='area'):
     return nodes, len(allocated_vms), len(vms)
 
 
+
+############################################################################3
+############################################################################3
+# boilerplate for other packing methods
 def pack_skeleton(orig_nodes, orig_vms, key='area'):
     '''Skeleton text about the packing routine.'''
 
@@ -318,6 +326,11 @@ def pack_skeleton(orig_nodes, orig_vms, key='area'):
                 # Magic here
 
             pass
+
+        # remove any allocated VMs from the master list
+        for vm in allocated_vms:
+            if vm in vms:
+                vms.remove(vm)
 
         # if nothing was allocated, we're done, and break out of the
         # outermost while loop
