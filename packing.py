@@ -43,10 +43,11 @@ transitions. :)'''
 
 import logging
 import copy
+import random
 
 log = logging.getLogger(__name__)
 
-def pack_setup(orig_nodes, orig_vms, vm_sort_key='area', vm_reverse=True):
+def pack_setup(orig_nodes, orig_vms, vm_sort_key='area', vm_reverse=True, vm_random=False):
 
     nodes = copy.deepcopy(orig_nodes)
     nodes.sort(key=lambda n: n.area(), reverse=True)
@@ -63,7 +64,11 @@ def pack_setup(orig_nodes, orig_vms, vm_sort_key='area', vm_reverse=True):
     log.info("Found method {}".format(vm_sort_key))
 
     vms = orig_vms.copy()
-    vms.sort(key=lambda v: getattr(v, vm_sort_key)(), reverse=vm_reverse)
+
+    if vm_random:
+        random.shuffle(vms)
+    else:
+        vms.sort(key=lambda v: getattr(v, vm_sort_key)(), reverse=vm_reverse)
 
     logging.debug("Sorted VM order (by {}, rev:{}): {}".format(vm_sort_key, vm_reverse, list(map(str,vms))))
 
@@ -71,7 +76,7 @@ def pack_setup(orig_nodes, orig_vms, vm_sort_key='area', vm_reverse=True):
     return nodes, vms
 
 
-def pack_size(orig_nodes, orig_vms, key='area', vm_reverse=True):
+def pack_size(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=False):
     '''A naive packing routine that only allocates by "size" of
     a VM, filling a single node to capacity, then moving along
     to the next node.  Returns a list of *NEW* nodes with the new packing
@@ -79,7 +84,7 @@ def pack_size(orig_nodes, orig_vms, key='area', vm_reverse=True):
 
     log.info("Packing by size")
 
-    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse)
+    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse, vm_random=vm_random)
 
 #    vm_metrics = {}
 #
@@ -145,14 +150,14 @@ def pack_size(orig_nodes, orig_vms, key='area', vm_reverse=True):
     return nodes, len(allocated_vms), len(vms)
 
 
-def pack_size_rr(orig_nodes, orig_vms, key='area', vm_reverse=True):
+def pack_size_rr(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=False):
     '''a slightly less naive packing routine that only allocates nodes,
     but rotates round-robin style over the nodes to attempt a more
     balanced allocation.'''
 
     log.info("Packing by size, RR")
 
-    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse)
+    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse, vm_random=vm_random)
     allocated_vms = []
 
     while vms:
@@ -212,7 +217,7 @@ def pack_size_rr(orig_nodes, orig_vms, key='area', vm_reverse=True):
 # Try to allocate VMs to nodes based on similarities of node
 # to hypervisors, based on dot-products of the (normalized)
 # dimensions of the nodes and VMs.
-def pack_size_df(orig_nodes, orig_vms, key='area', vm_reverse=True):
+def pack_size_df(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=False):
     '''Pack by dot product comparison'''
 
     import balance_math
@@ -220,7 +225,7 @@ def pack_size_df(orig_nodes, orig_vms, key='area', vm_reverse=True):
     log.info("Packing by dot-product in closet.")
 
     # Basic sorting and setup
-    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse)
+    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse, vm_random=vm_random)
 
 
 
@@ -249,7 +254,7 @@ def pack_size_df(orig_nodes, orig_vms, key='area', vm_reverse=True):
 
             node_delta = {}
             node_vect = {}
-            # TODO: Comapre against FREE SPACE, not MAX space!!!!
+
             for node in nodes:
                 # compute normalized vectors describing the resource dimensions,
                 # this will be used in comparisons later.
@@ -294,15 +299,14 @@ def pack_size_df(orig_nodes, orig_vms, key='area', vm_reverse=True):
 
 ############################################################################3
 # random packing
-def pack_random(orig_nodes, orig_vms, key='area', vm_reverse=True):
+def pack_random(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=False):
     '''Do it randomly, every time'''
 
-    import random
 
     log.info("Random packing")
 
     # Basic sorting and setup
-    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse)
+    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse, vm_random=vm_random)
 
     # initially empty list of VMs that have been placed somewhere.
     # if it isn't in this list, it wasn't placed.
@@ -351,13 +355,13 @@ def pack_random(orig_nodes, orig_vms, key='area', vm_reverse=True):
 ############################################################################3
 ############################################################################3
 # boilerplate for other packing methods
-def pack_skeleton(orig_nodes, orig_vms, key='area', vm_reverse=True):
+def pack_skeleton(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=False):
     '''Skeleton text about the packing routine.'''
 
     log.info("Packing skeletons in closet.")
 
     # Basic sorting and setup
-    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse)
+    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse, vm_random=vm_random)
 
     # initially empty list of VMs that have been placed somewhere.
     # if it isn't in this list, it wasn't placed.
