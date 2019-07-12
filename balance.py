@@ -152,6 +152,22 @@ for node in packed_nodes:
     node.efficency()
 
 
+#========================================================================
+#temp_nodes = copy.deepcopy(nodes)
+temp_vms = copy.deepcopy(vms)
+packed_nodes, packed_count, unpacked_count = packing.pack_random(temp_nodes, temp_vms, key='area')
+
+g=graphics.graphics(packed_nodes, height=600, width=800, filename="packed_random")
+g.save()
+
+
+print("Packed {}/{} nodes. ({:.0f}%)".format(packed_count, unpacked_count+packed_count, 100*packed_count/(packed_count+unpacked_count)))
+
+
+for node in packed_nodes:
+    node.efficency()
+
+
 
 #######################################################################
 
