@@ -214,6 +214,8 @@ def pack_size_rr(orig_nodes, orig_vms, key='area'):
 def pack_size_df(orig_nodes, orig_vms, key='area'):
     '''Pack by dot product comparison'''
 
+    import balance_math
+
     log.info("Packing by dot-product in closet.")
 
     # Basic sorting and setup
@@ -233,12 +235,55 @@ def pack_size_df(orig_nodes, orig_vms, key='area'):
         # Sequentially loop over all VMs in the list.  This list
         # was sorted in pack_setup() above, so no need to do it again.
         for vm in vms:
-            log.info("Attempt placing {}({:>.1f}GB,{} cpu) = {}".format(vm, vm.maxmem/2**30, vm.maxcpu, vm.area()))
-            # Magic here
+
+            # vector for the VM, to be compared against the nodes
+            vm_vect = balance_math.norm([ vm.maxmem_gb, vm.maxcpu])
+
+            log.info("Attempt placing {}({:>.1f}GB,{} cpu) = {} [{:.3f}, {:.3f}]".format(vm, vm.maxmem/2**30, vm.maxcpu, vm.area(), *vm_vect))
+            allocated = False
+
+
+            node_delta = {}
+            node_vect = {}
+            # TODO: Comapre against FREE SPACE, not MAX space!!!!
+            for node in nodes:
+                # compute normalized vectors describing the resource dimensions,
+                # this will be used in comparisons later.
+                node_vect[node.name] = balance_math.norm( [ node.freemem_gb - node.minfreemem_gb, node.freecpu - node.minfreecpu ])
+
+                # Compute the difference between the VM vector and node vector.
+                # This will be used to sort the node list
+                node_delta[node.name] = balance_math.length(balance_math.diff(vm_vect,node_vect[node.name]))
+                log.info("  Node delta={:.3f}".format(node_delta[node.name]))
+
+            # Sort the nodes according to similarity to the VM being packed.
+            nodes.sort(key=lambda n: node_delta[n.name])
 
             for node in nodes:
-                log.info("  on {}:".format(node))
-                # Magic here
+                log.info("  on {} [{:.3f},{:.3f}]:".format(node, *node_vect[node.name]))
+
+                if node.allocate(vm):
+                    log.info("  Placed {} on {}".format(vm, node))
+                    allocations += 1
+                    allocated_vms.append(vm)
+                    allocated = True
+                    break
+
+            if not allocated:
+                log.info("  Failed to place {}".format(vm))
+
+
+
+        # remove any allocated VMs from the master list
+        for vm in allocated_vms:
+            if vm in vms:
+                vms.remove(vm)
+
+        # if nothing was allocated, we're done, and break out of the
+        # outermost while loop
+        if allocations == 0:
+            break
+
 
     return nodes, len(allocated_vms), len(vms)
 
