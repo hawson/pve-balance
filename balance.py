@@ -108,7 +108,7 @@ for tvm in temp_vms:
 print("Packing....")
 
 
-packed_nodes, packed_count, unpacked_count = packing.pack_size(temp_nodes, temp_vms, key='area', vm_reverse=False)
+packed_nodes, packed_count, unpacked_count = packing.pack_size(temp_nodes, temp_vms, key='area')
 
 g=graphics.graphics(packed_nodes, height=600, width=800, filename="packed")
 g.save()
@@ -138,7 +138,7 @@ for node in packed_nodes:
 #========================================================================
 #temp_nodes = copy.deepcopy(nodes)
 temp_vms = copy.deepcopy(vms)
-packed_nodes, packed_count, unpacked_count = packing.pack_size_df(temp_nodes, temp_vms, key='area', vm_random=True)
+packed_nodes, packed_count, unpacked_count = packing.pack_size_df(temp_nodes, temp_vms, key='area')
 
 g=graphics.graphics(packed_nodes, height=600, width=800, filename="packed_df")
 g.save()
