@@ -77,8 +77,7 @@ else:
     vms = P.get_vms(full=True, )
 
 
-print(vms)
-
+#print(vms)
 #print(nodes)
 [x.show() for x in nodes]
 [x.show() for x in vms  ]
