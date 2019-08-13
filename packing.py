@@ -353,6 +353,61 @@ def pack_random(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=Fal
             break
 
     return nodes, len(allocated_vms), len(vms)
+
+
+############################################################################3
+############################################################################3
+# No-pack method
+def pack_null(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=False):
+    '''No-packing, mostly for displaying current status'''
+
+    log.info("Packing skeletons in closet.")
+
+    # Basic sorting and setup
+    nodes, vms = pack_setup(orig_nodes, orig_vms, vm_sort_key=key, vm_reverse=vm_reverse, vm_random=vm_random)
+
+    # initially empty list of VMs that have been placed somewhere.
+    # if it isn't in this list, it wasn't placed.
+    allocated_vms = []
+
+
+    log.debug(orig_nodes[0])
+    # Loop so long as there are vms to process
+    while vms:
+
+        # If allocations is zero at the end of this pass,
+        # we've done nothing, and break out.
+        allocations = 0
+
+        # Sequentially loop over all VMs in the list.  This list
+        # was sorted in pack_setup() above, so no need to do it again.
+        for vm in vms:
+            log.info("Attempt placing %s(%.1fGB, %d cpu) = %.4f", vm, vm.maxmem/2**30, vm.maxcpu, vm.area())
+            # Magic here
+
+            for node in nodes:
+                log.info("  on %s:", node)
+                if vm.node == node.name:
+                    if node.allocate(vm, force=True):
+                        log.info("  Placed %s on %s", vm, node)
+                        allocations += 1
+                        allocated_vms.append(vm)
+                        break
+
+        # remove any allocated VMs from the master list
+        for vm in allocated_vms:
+            if vm in vms:
+                vms.remove(vm)
+
+        # if nothing was allocated, we're done, and break out of the
+        # outermost while loop
+        if allocations == 0:
+            break
+
+    return nodes, len(allocated_vms), len(vms)
+
+
+
 ############################################################################3
 ############################################################################3
 # boilerplate for other packing methods
