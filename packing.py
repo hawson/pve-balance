@@ -48,6 +48,7 @@ import random
 log = logging.getLogger(__name__)
 
 def pack_setup(orig_nodes, orig_vms, vm_sort_key='area', vm_reverse=True, vm_random=False):
+    '''makes master lists of nodes and vms for packing'''
 
     nodes = copy.deepcopy(orig_nodes)
     nodes.sort(key=lambda n: n.area(), reverse=True)
