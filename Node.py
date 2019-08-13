@@ -44,12 +44,25 @@ class Node:
         self.freemem = self.maxmem
 
         self.maxmem_gb = self.maxmem/2**30
-        self.mem_gb = self.mem/2**30
-        self.freemem_gb = self.freemem/2**30
 
-        self.minfreecpu = minfreecpu
-        self.minfreemem = minfreemem_perc * self.maxmem
-        self.minfreemem_gb = self.minfreemem/2**30
+        if self.status == 'online':
+            self.mem_gb = self.mem/2**30
+            self.freemem_gb = self.freemem/2**30
+
+            self.minfreecpu = minfreecpu
+            self.minfreemem = minfreemem_perc * self.maxmem
+            self.minfreemem_gb = self.minfreemem/2**30
+        else:
+            self.mem_gb = 0
+            self.freemem_gb = 0
+
+            self.minfreecpu = 0
+            self.minfreemem = 0
+            self.minfreemem_gb = 0
+
+            self.cpu = 0
+            self.mem = 0
+
 
 
     def __str__(self):
