@@ -62,7 +62,7 @@ def pack_setup(orig_nodes, orig_vms, vm_sort_key='area', vm_reverse=True, vm_ran
     except AttributeError:
         raise NotImplementedError("The vm class does not have {} a method".format(vm_sort_key))
 
-    log.info("Found method {}".format(vm_sort_key))
+    log.info("Found method %s", vm_sort_key)
 
     vms = orig_vms.copy()
 
@@ -110,21 +110,21 @@ def pack_size(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=False
         for vm in vms:
             #print(list(map(str,vms)))
             #print(list(map(str,allocated_vms)))
-            log.info("Attempt placing {}({:>.1f}GB,{} cpu) = {}".format(vm, vm.maxmem/2**30, vm.maxcpu, vm.area()))
+            log.info("Attempt placing %s(%.1fGB, %d cpu) = %.4f", vm, vm.maxmem/2**30, vm.maxcpu, vm.area())
             allocated = False
 
             for node in nodes:
-                log.info("  on {}:".format(node))
+                log.info("  on %s:", node)
 
                 if node.allocate(vm):
-                    log.info("  Placed {} on {}".format(vm, node))
+                    log.info("  Placed %s on %s", vm, node)
                     allocations += 1
                     allocated_vms.append(vm)
                     allocated = True
                     break
 
             if not allocated:
-                log.info("  Failed to place {}".format(vm))
+                log.info("  Failed to place %s", vm)
 
         for vm in allocated_vms:
             if vm in vms:
@@ -136,9 +136,9 @@ def pack_size(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=False
             break
 
     if vms:
-        log.error("Failed to place {}  VMs! {}".format(len(vms), list(map(str, vms))))
+        log.error("Failed to place %d VMs! %s", len(vms), list(map(str, vms)))
     else:
-        log.info("Successfully packed all {} VMs".format(len(orig_vms)))
+        log.info("Successfully packed all %d VMs", len(orig_vms))
 
 
     # Print vms by node
@@ -168,7 +168,7 @@ def pack_size_rr(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=Fa
         nodes_avail = len(nodes)
 
         for vm in vms:
-            log.info("Attempt placing {}({:>.1f}GB,{} cpu) = {}".format(vm, vm.maxmem/2**30, vm.maxcpu, vm.area()))
+            log.info("Attempt placing %s(%.1fGB, %d cpu) = %.4f", vm, vm.maxmem/2**30, vm.maxcpu, vm.area())
             allocated = False
 
             for i in range(nodes_avail):    # pylint: disable=unused-variable
@@ -176,17 +176,17 @@ def pack_size_rr(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=Fa
                 node_index += 1
                 node = nodes[node_index % nodes_avail]
 
-                log.info("  on {}:".format(node))
+                log.info("  on %s:", node)
 
                 if node.allocate(vm):
-                    log.info("  Placed {} on {}".format(vm, node))
+                    log.info("  Placed %s on %s", vm, node)
                     allocations += 1
                     allocated_vms.append(vm)
                     allocated = True
                     break
 
             if not allocated:
-                log.info("  Failed to place {}".format(vm))
+                log.info("  Failed to place %s", vm)
 
         for vm in allocated_vms:
             if vm in vms:
@@ -198,9 +198,9 @@ def pack_size_rr(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=Fa
             break
 
     if vms:
-        log.error("Failed to place {}  VMs! {}".format(len(vms), list(map(str, vms))))
+        log.error("Failed to place %d VMs! %s", len(vms), list(map(str, vms)))
     else:
-        log.info("Successfully packed all {} VMs".format(len(orig_vms)))
+        log.info("Successfully packed all %d VMs", len(orig_vms))
 
 
     # Print vms by node
@@ -249,7 +249,7 @@ def pack_size_df(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=Fa
             # vector for the VM, to be compared against the nodes
             vm_vect = balance_math.norm([ vm.maxmem_gb, vm.maxcpu])
 
-            log.info("Attempt placing {}({:>.1f}GB,{} cpu) = {} [{:.3f}, {:.3f}]".format(vm, vm.maxmem/2**30, vm.maxcpu, vm.area(), *vm_vect))
+            log.info("Attempt placing %s(%.1fGB, %d cpu) = %.4f [%.3f, %.3f]", vm, vm.maxmem/2**30, vm.maxcpu, vm.area(), *vm_vect)
             allocated = False
 
 
@@ -259,28 +259,28 @@ def pack_size_df(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=Fa
             for node in nodes:
                 # compute normalized vectors describing the resource dimensions,
                 # this will be used in comparisons later.
-                node_vect[node.name] = balance_math.norm( [ node.freemem_gb - node.minfreemem_gb, node.freecpu - node.minfreecpu ])
+                node_vect[node.name] = balance_math.norm([ node.freemem_gb - node.minfreemem_gb, node.freecpu - node.minfreecpu ])
 
                 # Compute the difference between the VM vector and node vector.
                 # This will be used to sort the node list
-                node_delta[node.name] = balance_math.length(balance_math.diff(vm_vect,node_vect[node.name]))
-                log.info("  Node delta={:.3f}".format(node_delta[node.name]))
+                node_delta[node.name] = balance_math.length(balance_math.diff(vm_vect, node_vect[node.name]))
+                log.info("  Node delta=%.3f", node_delta[node.name])
 
             # Sort the nodes according to similarity to the VM being packed.
             nodes.sort(key=lambda n: node_delta[n.name])
 
             for node in nodes:
-                log.info("  on {} [{:.3f},{:.3f}]:".format(node, *node_vect[node.name]))
+                log.info("  on %s [%.3f,%.3f]:", node, *node_vect[node.name])
 
                 if node.allocate(vm):
-                    log.info("  Placed {} on {}".format(vm, node))
+                    log.info("  Placed %s on %s", vm, node)
                     allocations += 1
                     allocated_vms.append(vm)
                     allocated = True
                     break
 
             if not allocated:
-                log.info("  Failed to place {}".format(vm))
+                log.info("  Failed to place %s", vm)
 
 
 
@@ -324,22 +324,22 @@ def pack_random(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=Fal
         # was sorted in pack_setup() above, so no need to do it again.
         random.shuffle(vms)
         for vm in vms:
-            log.info("Attempt placing {}({:>.1f}GB,{} cpu) = {}".format(vm, vm.maxmem/2**30, vm.maxcpu, vm.area()))
+            log.info("Attempt placing %s(%.1fGB, %d cpu) = %.4f", vm, vm.maxmem/2**30, vm.maxcpu, vm.area())
             # Magic here
 
             random.shuffle(nodes)
             for node in nodes:
-                log.info("  on {}:".format(node))
+                log.info("  on %s:", node)
 
                 if node.allocate(vm):
-                    log.info("  Placed {} on {}".format(vm, node))
+                    log.info("  Placed %s on %s", vm, node)
                     allocations += 1
                     allocated_vms.append(vm)
                     allocated = True
                     break
 
             if not allocated:
-                log.info("  Failed to place {}".format(vm))
+                log.info("  Failed to place %s", vm)
 
 
         # remove any allocated VMs from the master list
@@ -433,14 +433,12 @@ def pack_skeleton(orig_nodes, orig_vms, key='area', vm_reverse=True, vm_random=F
         # Sequentially loop over all VMs in the list.  This list
         # was sorted in pack_setup() above, so no need to do it again.
         for vm in vms:
-            log.info("Attempt placing {}({:>.1f}GB,{} cpu) = {}".format(vm, vm.maxmem/2**30, vm.maxcpu, vm.area()))
+            log.info("Attempt placing %s(%.1fGB, %d cpu) = %.4f", vm, vm.maxmem/2**30, vm.maxcpu, vm.area())
             # Magic here
 
             for node in nodes:
-                log.info("  on {}:".format(node))
+                log.info("  on %s:", node)
                 # Magic here
-
-            pass
 
         # remove any allocated VMs from the master list
         for vm in allocated_vms:
