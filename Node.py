@@ -113,18 +113,20 @@ class Node:
         ))
 
 
-    def allocate(self, vm):
+    def allocate(self, vm, force=False):
         '''Allocate a VM to a node, if there is space.  "Free" resources
         are deducted accordingly.  True is returned if the node was
         allocated; False is returned otherwise.  If a vm is allocated,
         the self.allocated_vms list is updated accordingly with a copy
         of the VMa.'''
 
-        if self.has_space(vm, quiet=False):
+        if force or self.has_space(vm, quiet=False):
             self.freemem -= vm.maxmem
             self.freemem_gb = self.freemem/2**30
             self.freecpu -= vm.maxcpu
             self.allocated_vms.append(vm)
+            if force:
+                self.log.debug("  %s placement on %s forced.", vm.name, self.name)
             return True
         return False
 
