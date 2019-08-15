@@ -7,17 +7,13 @@ import json
 import copy
 
 import logging
+import argparse
 
 from PVE import PVE
 
 import packing
 import graphics
 
-
-
-LOG_LEVEL = 1
-
-logging.basicConfig(format='%(asctime)-15s [%(levelname)s] %(message)s', level=LOG_LEVEL)
 
 
 H = 'pve3.ad.ibbr.umd.edu'
@@ -32,30 +28,91 @@ vms = {}
 #
 
 
-if len(sys.argv)>1:
-    import Node
-    import VM
+#####################
+# Argument parsing
 
-    fp = open(sys.argv[1])
-    node_list = json.load(fp)
-    fp.close()
+parser = argparse.ArgumentParser(
+    description='''
+Exactly two arguments may be passed on the CLI.  The first
+must be a JSON dump of the node definitions; the second must
+be a JSON dump of the VM definitions.
+''')
 
-    fp = open(sys.argv[2])
-    vm_list = json.load(fp)
-    fp.close()
+parser.add_argument('-c', '--current', action='store_true', help="Only show current status.")
+parser.add_argument('-n', '--nopics',  action='store_true', help="Do not generate output picutres")
+parser.add_argument('-q', '--quiet',   action='store_true', help="Be quiet")
+parser.add_argument('-v', '--verbose', action='count',      help="Be verbose, (multiples okay)")
 
-    print(node_list)
+parser.add_argument('-H', '--host',
+    action='store',
+    help="Hostname to connect to proxmox API endpoint",
+    default='pve3.ad.ibbr.umd.edu')
 
-    nodes = [ Node.Node(data=n) for n in node_list['data'] ]
-    vms = [ VM.VM(data=v) for v in vm_list['data'] ]
+# Default Username
+parser.add_argument('-u', '--username',
+    action='store',
+    help="Proxmox API username",
+    default="monitoring@pve")
 
-    print(nodes)
-    print(vms)
+# Default Password
+parser.add_argument('-p', '--password',
+    action='store',
+    help="Proxmox API password (hint: store password in ENV variable, and pass that on CLI)",
+    default="monitoring")
+
+
+parser.add_argument('json_files', nargs='*', action='store')
+
+try:
+    parsed_options, remaining_args = parser.parse_known_args()
+
+except SystemExit as exc:
+    print('''
+Error parsing arguments.
+'''.format( ) )
+    sys.exit(1)
+
+
+verbose_value = 0 if parsed_options.verbose is None else parsed_options.verbose
+LOG_LEVEL = max(1, 30 - verbose_value * 10)
+logging.basicConfig(format='%(asctime)-15s [%(levelname)s] %(message)s', level=LOG_LEVEL)
+
+logging.debug(parsed_options)
+logging.debug(remaining_args)
+
+
+if parsed_options.json_files:
+
+    logging.debug(parsed_options.json_files)
+
+    if len(parsed_options.json_files) == 2:
+
+        import Node
+        import VM
+
+        fp = open(parsed_options.json_files[0])
+        node_list = json.load(fp)
+        fp.close()
+
+        fp = open(parsed_options.json_files[1])
+        vm_list = json.load(fp)
+        fp.close()
+
+        logging.debug("Parsed node JSON=%s",str(node_list))
+        #logging.debug("Parsed VM JSON=%s",+str(vm_list))
+
+        # Build Node and VM objects from imported JSON data
+        nodes = [ Node.Node(data=n) for n in node_list['data'] ]
+        vms = [ VM.VM(data=v) for v in vm_list['data'] ]
+
+    else:
+        parser.print_help()
+        sys.exit(1)
 
 else:
     #proxmox = ProxmoxAPI(H, password=P, user=U)
     #P = PVE(host=H, u=U, pw=P, excludes=['pve3'])
-    P = PVE(host=H, u=U, pw=P, excludes=['badnode'])
+    P = PVE(host=parsed_options.host, u=parsed_options.username, pw=parsed_options.password, excludes=['badnode'])
 
     print("Dumping Nodes")
     nodes = P.get_nodes(full=True)
@@ -64,6 +121,7 @@ else:
 
     #vms = P.get_vms(full=False, filter_node='pve2')
     vms = P.get_vms(full=True, )
+
 
 
 #print(vms)
