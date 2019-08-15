@@ -94,6 +94,14 @@ for tvm in temp_vms:
     print('{:>25}: {:>.4f} {:>.4f}'.format(tvm.name, tvm.area_perc(), tvm.area()))
 
 
+print("Current status....")
+
+
+packed_nodes, packed_count, unpacked_count = packing.pack_null(temp_nodes, temp_vms, key='area')
+
+g=graphics.graphics(packed_nodes, height=600, width=800, filename="current")
+g.save()
+
 print("Packing....")
 
 
