@@ -160,6 +160,12 @@ if not parsed_options.nopics:
     g=graphics.graphics(packed_nodes, height=600, width=800, filename="current")
     g.save()
 
+
+if parsed_options.current:
+    sys.exit(0)
+
+
+
 print("Packing....")
 
 
