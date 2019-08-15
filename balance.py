@@ -40,7 +40,6 @@ be a JSON dump of the VM definitions.
 
 parser.add_argument('-c', '--current', action='store_true', help="Only show current status.")
 parser.add_argument('-n', '--nopics',  action='store_true', help="Do not generate output picutres", default=False)
-parser.add_argument('-q', '--quiet',   action='store_true', help="Be quiet")
 parser.add_argument('-v', '--verbose', action='count',      help="Be verbose, (multiples okay)")
 
 parser.add_argument('-H', '--host',
