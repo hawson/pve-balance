@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 
 import json
-import requests
 import logging
 import datetime
+import requests
 
 LOG_LEVEL = 1
 logging.basicConfig(format='%(asctime)-15s [%(levelname)s] %(message)s', level=LOG_LEVEL)
 
-
-from PVE import PVE
 
 H = 'pve3.ad.ibbr.umd.edu'
 U = 'monitoring@pve'
@@ -63,5 +61,3 @@ fp.close()
 
 #print(response)
 #print(response.headers)
-
-
