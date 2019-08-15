@@ -31,17 +31,6 @@ vms = {}
 # https://pve.proxmox.com/pve-docs/api-viewer/index.html
 #
 
-def human_format(num, precision=1):
-    magnitude = 0
-    while abs(num) >= 1024:
-        magnitude += 1
-        num /= 1024.0
-    # add more suffixes if you need them
-    format_str = '%.' + str(precision) + 'f%s'
-    #return '%.2f%s' % (num, ['', 'K', 'M', 'G', 'T', 'P'][magnitude])
-    return format_str % (num, ['', 'K', 'M', 'G', 'T', 'P'][magnitude])
-
-
 
 if len(sys.argv)>1:
     import Node
