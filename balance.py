@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
+'''Show the current VM loadout of a PVE cluster.'''
 
-import os
-import re
 import sys
 import json
 import copy
@@ -44,21 +43,21 @@ parser.add_argument('-a', '--allocated',action='store_true', help="Show allocate
 parser.add_argument('-v', '--verbose', action='count',      help="Be verbose, (multiples okay)")
 
 parser.add_argument('-H', '--host',
-    action='store',
-    help="Hostname to connect to proxmox API endpoint",
-    default='pve3.ad.ibbr.umd.edu')
+                    action='store',
+                    help="Hostname to connect to proxmox API endpoint",
+                    default='pve3.ad.ibbr.umd.edu')
 
 # Default Username
 parser.add_argument('-u', '--username',
-    action='store',
-    help="Proxmox API username",
-    default="monitoring@pve")
+                    action='store',
+                    help="Proxmox API username",
+                    default="monitoring@pve")
 
 # Default Password
 parser.add_argument('-p', '--password',
-    action='store',
-    help="Proxmox API password (hint: store password in ENV variable, and pass that on CLI)",
-    default="monitoring")
+                    action='store',
+                    help="Proxmox API password (hint: store password in ENV variable, and pass that on CLI)",
+                    default="monitoring")
 
 
 parser.add_argument('json_files', nargs='*', action='store')
@@ -126,8 +125,11 @@ else:
 
 #print(vms)
 #print(nodes)
-[x.show() for x in nodes]
-[x.show() for x in vms  ]
+for x in nodes:
+    x.show()
+
+for x in vms:
+    x.show()
 
 temp_vms = vms.copy()
 

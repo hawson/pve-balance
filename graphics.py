@@ -4,6 +4,7 @@ import logging
 from PIL import Image, ImageDraw
 
 class graphics:
+    '''Catch-all graphics class to draw the representations of VMs allocated to Hypervisors'''
 
     def __init__(self, nodes, height=None, width=None, filename=None, show_allocated=False):
 
@@ -112,6 +113,7 @@ class graphics:
 
 
     def draw_vm(self, node_name, vm_name, ox, oy, px, py, box_color=(0,0,0), text_color=(0,0,0,255)):
+        '''Draw a little box representing a VM'''
         self.image[node_name]['draw'].rectangle(
             [(ox, oy), (px, py)],
             outline=box_color,
@@ -158,9 +160,9 @@ class graphics:
             x = gb * self.px_per_mem_gb
             tick_len = base_tick_length_px
 
-            if 0 == (gb % (mem_gb_ticks * 2)):
+            if (gb % (mem_gb_ticks * 2)) == 0:
                 tick_len *= 3
-            elif 0 == (gb % mem_gb_ticks):
+            elif (gb % mem_gb_ticks) == 0:
                 tick_len *= 2
 
             self.image[node.name]['draw'].line((x, 0, x, tick_len), fill='#00a')   # MEM tickmark, top
@@ -173,9 +175,9 @@ class graphics:
             y = cpu * self.px_per_cpu
             tick_len = base_tick_length_px
 
-            if 0 == (cpu % (cpu_ticks * 2)):
+            if (cpu % (cpu_ticks * 2)) == 0:
                 tick_len *= 3
-            elif 0 == (cpu % cpu_ticks):
+            elif (cpu % cpu_ticks) == 0:
                 tick_len *= 2
 
             self.image[node.name]['draw'].line((0,y, tick_len, y), fill='#00a')   # CPU tickmark, left
@@ -205,6 +207,7 @@ class graphics:
 
 
     def save(self):
+        '''Save the image file.'''
         for node in self.image:
             fname = self.image[node]['filename']
             self.image[node]['img'].save(fname, 'PNG')

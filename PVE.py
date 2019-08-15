@@ -1,13 +1,11 @@
-# Class for a connection to a cluster.
+'''Class for a connection to a cluster. Fetches JSON output of node and VM infomration.'''
 
 import sys
 import logging
 
-from VM import VM
-from Node import Node
-from proxmoxer import ProxmoxAPI
 
 class PVE():
+    '''Class for a connection to a cluster. Fetches JSON output of node and VM infomration.'''
 
 
     def __init__(self, host=None, u=None, pw=None, excludes=None):
@@ -25,6 +23,7 @@ class PVE():
         self.excludes = excludes
 
 
+        # Connect to the API, and return a connection handler for later use
         try:
             self.proxmox = proxmoxer.ProxmoxAPI(host, user=u, password=pw)
 
@@ -40,6 +39,8 @@ class PVE():
 
 
     def get_nodes(self, full=False):
+        '''Fetch list of nodes from the Proxmox API'''
+        from Node import Node
 
         self.log.debug("Getting nodes.")
 
@@ -61,6 +62,8 @@ class PVE():
 
 
     def get_vms(self, full=False, filter_node=None):
+        '''Fetch list of VMs from the Proxmox API'''
+        from VM import VM
 
         self.log.debug("Getting VMs.")
 
