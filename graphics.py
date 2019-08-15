@@ -5,12 +5,15 @@ from PIL import Image, ImageDraw
 
 class graphics:
 
-    def __init__(self, nodes, height=None, width=None, filename=None):
+    def __init__(self, nodes, height=None, width=None, filename=None, show_allocated=False):
 
         self.log = logging.getLogger(__name__)
 
         self.height = height
         self.width = width
+
+        # this shows the "used" values of the VMs, not just the allocoations
+        self.show_allocated=show_allocated
 
 
         # Find the largest resource values for X (memory) and Y (CPUs)
@@ -78,14 +81,43 @@ class graphics:
                 # Draw a box for the VM In question, and label it.
                 self.draw_vm(node.name, vm.name, ox, oy, px, py)
 
+            if self.show_allocated:
 
-    def draw_vm(self, node_name, vm_name, ox, oy, px, py):
+                self.image[node.name]['px'] = 0
+                self.image[node.name]['py'] = 0
+
+                # Loop over the VMs AGAIN, to show the acutal "used" amounts
+                for vm in node.allocated_vms:
+
+                    # Note:  we cannot use "vm.node" to get the name of the node we are dealing with,
+                    # since that's the "old" placement, not the new packed one one
+
+                    # Old bottom-right corners become new top-left corners
+                    ox = self.image[node.name]['px']
+                    oy = self.image[node.name]['py']
+
+                    # New bottom-right corners are the px_per_metric * the_metrics
+                    self.image[node.name]['px'] += vm.mem_gb * self.px_per_mem_gb
+                    self.image[node.name]['py'] += max(10, vm.cpu    * self.px_per_cpu * 8)
+
+                    # update shorthand variables.
+                    px = self.image[node.name]['px']
+                    py = self.image[node.name]['py']
+
+                    self.log.debug("Drawing>{} on {} ({}x{})+({}x{})".format(vm.name, node.name, ox, oy, px, py))
+                    self.log.debug("       >{} area={} area_perc={:.3f} score={}".format(vm.name, vm.area(), vm.area_perc(), vm.score()))
+
+                    # Draw a box for the VM In question, and label it.
+                    self.draw_vm(node.name, vm.name, ox, oy, px, py, box_color=(0,128,0), text_color=(128,0,0))
+
+
+    def draw_vm(self, node_name, vm_name, ox, oy, px, py, box_color=(0,0,0), text_color=(0,0,0,255)):
         self.image[node_name]['draw'].rectangle(
             [(ox, oy), (px, py)],
-            outline=(0,0,0),
+            outline=box_color,
             fill=None
         )
-        self.image[node_name]['draw'].text((ox+2, oy+1), vm_name, fill=(0,0,0,255))
+        self.image[node_name]['draw'].text((ox+2, oy+1), vm_name, fill=text_color)
 
 
 

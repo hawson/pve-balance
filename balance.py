@@ -40,6 +40,7 @@ be a JSON dump of the VM definitions.
 
 parser.add_argument('-c', '--current', action='store_true', help="Only show current status.")
 parser.add_argument('-n', '--nopics',  action='store_true', help="Do not generate output picutres", default=False)
+parser.add_argument('-a', '--allocated',action='store_true', help="Show allocated CPU/RAM, in addition to max usage", default=False)
 parser.add_argument('-v', '--verbose', action='count',      help="Be verbose, (multiples okay)")
 
 parser.add_argument('-H', '--host',
@@ -157,7 +158,7 @@ print("Current status....")
 packed_nodes, packed_count, unpacked_count = packing.pack_null(temp_nodes, temp_vms, key='area')
 
 if not parsed_options.nopics:
-    g=graphics.graphics(packed_nodes, height=600, width=800, filename="current")
+    g=graphics.graphics(packed_nodes, height=600, width=800, filename="current", show_allocated=parsed_options.allocated)
     g.save()
 
 
@@ -166,13 +167,15 @@ if parsed_options.current:
 
 
 
+
 print("Packing....")
+
 
 
 packed_nodes, packed_count, unpacked_count = packing.pack_size(temp_nodes, temp_vms, key='area')
 
 if not parsed_options.nopics:
-    g=graphics.graphics(packed_nodes, height=600, width=800, filename="packed")
+    g=graphics.graphics(packed_nodes, height=600, width=800, filename="packed", show_allocated=parsed_options.allocated)
     g.save()
 
 
@@ -187,7 +190,7 @@ temp_vms = copy.deepcopy(vms)
 packed_nodes, packed_count, unpacked_count = packing.pack_size_rr(temp_nodes, temp_vms, key='area')
 
 if not parsed_options.nopics:
-    g=graphics.graphics(packed_nodes, height=600, width=800, filename="packed_rr")
+    g=graphics.graphics(packed_nodes, height=600, width=800, filename="packed_rr", show_allocated=parsed_options.allocated)
     g.save()
 
 
@@ -204,7 +207,7 @@ temp_vms = copy.deepcopy(vms)
 packed_nodes, packed_count, unpacked_count = packing.pack_size_df(temp_nodes, temp_vms, key='area')
 
 if not parsed_options.nopics:
-    g=graphics.graphics(packed_nodes, height=600, width=800, filename="packed_df")
+    g=graphics.graphics(packed_nodes, height=600, width=800, filename="packed_df", show_allocated=parsed_options.allocated)
     g.save()
 
 
@@ -221,7 +224,7 @@ temp_vms = copy.deepcopy(vms)
 packed_nodes, packed_count, unpacked_count = packing.pack_random(temp_nodes, temp_vms, key='area')
 
 if not parsed_options.nopics:
-    g=graphics.graphics(packed_nodes, height=600, width=800, filename="packed_random")
+    g=graphics.graphics(packed_nodes, height=600, width=800, filename="packed_random", show_allocated=parsed_options.allocated)
     g.save()
 
 
