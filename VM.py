@@ -59,7 +59,7 @@ class VM:
             state    = ' ' if self.status == 'running' else '*',
             cpu      = '{:>03.1f}'.format(self.cpu),
             maxcpu   = '{:>2}'.format(self.maxcpu),
-            node     = '{:>4}'.format(self.node),
+            node     = '{:8}'.format(self.node),
             cpu_perc = '{:>2.0f}'.format(float( float(self.cpu)/float(self.maxcpu)*100)),
             maxmem   = '{:>3.0f}'.format(self.maxmem_gb),
             score    = self.score(full=True),
@@ -89,7 +89,7 @@ class VM:
 
 
         if full:
-            return '{:< 6.3f} = {:5.3f} + {:5.3f} + {:3.1f}'.format(
+            return '{:-6.3f} = {:6.3f} + {:6.3f} + {:3.1f}'.format(
                 score,
                 scores['cpu'],
                 scores['mem'],

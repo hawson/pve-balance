@@ -14,7 +14,7 @@ class Node:
     '''Main node class.'''
 
     # Formatting string fro score output
-    fmt = '{name:25} {cpu}/{maxcpu}(%{cpu_perc}) {maxmem}G(%{mem_perc}) score: {score}'
+    fmt = '{name:25} {cpu}/{maxcpu}(%{cpu_perc}) {maxmem}G(%{mem_perc})     score: {score}'
 
     shown = False
 
@@ -104,7 +104,7 @@ class Node:
                 maxcpu=self.dash(2),
                 cpu_perc=self.dash(2),
                 maxmem=self.dash(3),
-                mem_perc=self.dash(3),
+                mem_perc=self.dash(2),
                 score=self.dash(15),
             ))
 
@@ -191,7 +191,7 @@ class Node:
         score = sum(scores.values())
 
         if full:
-            return '{:6.3f} = {:5.3f} + {:5.3f} + {:3.1f}'.format(
+            return '{: 6.3f} = {: 5.3f} + {: 5.3f} + {:3.1f}'.format(
                 score,
                 scores['cpu'],
                 scores['mem'],
