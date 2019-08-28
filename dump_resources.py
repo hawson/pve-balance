@@ -9,13 +9,13 @@ LOG_LEVEL = 1
 logging.basicConfig(format='%(asctime)-15s [%(levelname)s] %(message)s', level=LOG_LEVEL)
 
 
-H = 'pve3.ad.ibbr.umd.edu'
+H = 'pve5.ad.ibbr.umd.edu'
 U = 'monitoring@pve'
 P = 'monitoring'
 
 client=requests.session()
 
-URL="https://pve3.ad.ibbr.umd.edu:8006/api2/json/access/ticket"
+URL="https://{}:8006/api2/json/access/ticket".format(H)
 auth_response = client.post(URL, data={'username':U, 'password':P})
 
 try:
@@ -34,7 +34,7 @@ cookies = {
 
 
 # GET NODES
-nodes = client.get('https://pve3.ad.ibbr.umd.edu:8006/api2/json/nodes/', cookies={'PVEAuthCookie': ticket})
+nodes = client.get('https://{}:8006/api2/json/nodes/'.format(H), cookies={'PVEAuthCookie': ticket})
 
 try:
     fname = "nodes-{}.json".format(datetime.datetime.now().strftime('%Y%m%d-%H%M'))
@@ -46,7 +46,7 @@ fp.write(json.dumps(json.loads(nodes.text), sort_keys=True, indent=4 ))
 fp.close()
 
 # GET VMs
-vms = client.get('https://pve3.ad.ibbr.umd.edu:8006/api2/json/cluster/resources?type=vm', cookies={'PVEAuthCookie': ticket})
+vms = client.get('https://{}:8006/api2/json/cluster/resources?type=vm'.format(H), cookies={'PVEAuthCookie': ticket})
 
 try:
     fname = "vms-{}.json".format(datetime.datetime.now().strftime('%Y%m%d-%H%M'))

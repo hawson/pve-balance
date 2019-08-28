@@ -13,12 +13,6 @@ from PVE import PVE
 import packing
 import graphics
 
-
-
-H = 'pve3.ad.ibbr.umd.edu'
-U = 'monitoring@pve'
-P = 'monitoring'
-
 nodes = {}
 vms = {}
 
@@ -45,7 +39,7 @@ parser.add_argument('-v', '--verbose', action='count',      help="Be verbose, (m
 parser.add_argument('-H', '--host',
                     action='store',
                     help="Hostname to connect to proxmox API endpoint",
-                    default='pve3.ad.ibbr.umd.edu')
+                    default='pve5.ad.ibbr.umd.edu')
 
 # Default Username
 parser.add_argument('-u', '--username',
