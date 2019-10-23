@@ -132,9 +132,9 @@ class graphics:
 
         if re.match('^[a-z0-9_.-]+$', filename):
             if re.match(r'\.png$', filename):
-                fname = '{}-{}'.format(node.name, filename)
+                fname = '{}-{}'.format(filename, node.name)
             else:
-                fname = '{}-{}.png'.format(node.name, filename)
+                fname = '{}-{}.png'.format(filename, node.name)
 
         else:
             fname = '{}.png'.format(node.name)
