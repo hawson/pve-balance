@@ -4,3 +4,4 @@ idna==2.8
 Pillow==6.2.1
 requests==2.22.0
 urllib3==1.25.7
+Proxmoxer>=1.0.3
